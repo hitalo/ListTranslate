@@ -1,4 +1,4 @@
-#Language Translate
+Language Translate
 
 Create a list with translated sentences
 
