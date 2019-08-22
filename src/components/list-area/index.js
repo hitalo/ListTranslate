@@ -41,7 +41,7 @@ class MainList extends Component {
         });
         const preSelected = this.getItemByModal(this.selectedLanguageModel);
         state = { languages: languages, selectedLanguage: (preSelected.src || ""), selectedLanguageTarget: (preSelected.target || "") }
-        this.setState(state, () => this.languageSelect(preSelected.src));
+        this.setState(state, () => this.selectLanguage(preSelected.src));
     }
 
     addNewItem() {
@@ -69,7 +69,7 @@ class MainList extends Component {
         this.setState({ isMenuVisible });
     }
 
-    languageSelect(selectedLanguage) {
+    selectLanguage(selectedLanguage) {
         targets = [];
         modals.list.map(item => {
             if (item.src === selectedLanguage)
@@ -78,7 +78,7 @@ class MainList extends Component {
         this.setState({ selectedLanguage: selectedLanguage, targetLanguages: targets });
     }
 
-    languageTargetSelect(item) {
+    selectLanguageTarget(item) {
         this.setState({ selectedLanguageTarget: item });
     }
 
@@ -107,7 +107,7 @@ class MainList extends Component {
                                     selectedValue={this.state.selectedLanguage}
                                     style={styles.languagesPicker}
                                     onValueChange={(itemValue, itemIndex) =>
-                                        this.languageSelect(itemValue)
+                                        this.selectLanguage(itemValue)
                                     }
                                 >
 
@@ -130,7 +130,7 @@ class MainList extends Component {
                                     selectedValue={this.state.selectedLanguageTarget}
                                     style={styles.languagesPicker}
                                     onValueChange={(itemValue, itemIndex) =>
-                                        this.languageTargetSelect(itemValue)
+                                        this.selectLanguageTarget(itemValue)
                                     }
                                 >
                                     {
