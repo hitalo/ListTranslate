@@ -17,7 +17,7 @@ class ListItem extends Component {
     }
 
     saveItem(item) {
-        if(item.text) {
+        if (item.text) {
             Db.open().addItem(item);
         }
     }
@@ -27,17 +27,18 @@ class ListItem extends Component {
         this.props.updateList();
     }
 
-    translate(item) {
-        // var translater =  new TanslatorWatson();
+    async translate(item) {
+        var translater =  new TanslatorWatson();
 
-        // translater.test(item.text, 'en', 'fr');
+        var result =  await translater.translate({text: item, model: 'en-pt'});
+        this.setState({translation : result.translations[0].translation});
     }
 
     okClick = (okClicked) => {
-        
-        if(okClicked) {
+
+        if (okClicked) {
             this.deleteItem(this.props.item.id);
-        } 
+        }
 
         this.setState({ isModalVisible: false });
     }
@@ -51,15 +52,15 @@ class ListItem extends Component {
 
             <View style={styles.container}>
 
-                <Modal 
-                    visible={this.state.isModalVisible} 
+                <Modal
+                    visible={this.state.isModalVisible}
                     transparent={true}
                     onRequestClose={() => this.changeModalVisibility(false)}>
-                    
-                    <ConfirmModal 
-                    text="Delete this item?"
-                    title="Confirm delete"
-                    okClick={this.okClick} />
+
+                    <ConfirmModal
+                        text="Delete this item?"
+                        title="Confirm delete"
+                        okClick={this.okClick} />
                 </Modal>
 
                 <View style={styles.iconsContainer}>
@@ -82,10 +83,26 @@ class ListItem extends Component {
                     style={styles.inputContainer}
                     multiline={true}
                     placeholder='Text'
-                    onChangeText={(text) => this.setState({ 'item': { ...this.state.item, 'text': text }, 'translation': text.toUpperCase() })}
+                    onChangeText={(text) => this.setState({ 'item': { ...this.state.item, 'text': text }, 'translation': text })}
                     onBlur={() => { this.saveItem(this.state.item) }}
                     value={this.state.item.text}
                 />
+
+                <View style={{ flexDirection: 'row', flex: 1 }}>
+                    <Text style={styles.languageID}>Spanish</Text>
+                    <TouchableOpacity
+                        style={{marginTop: 10}}
+                        onPress={() => {
+                            this.translate(this.state.item.text);
+                        }}
+                    >
+                        <Icon
+                            name="translate"
+                            size={20}
+                            color="blue"
+                        />
+                    </TouchableOpacity>
+                </View>
                 <Input
                     style={styles.inputContainer}
                     multiline={true}
@@ -120,6 +137,12 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         fontSize: 24
+    },
+    languageID: {
+        color: 'grey',
+        fontSize: 15,
+        marginTop: 10,
+        flex: 1
     },
     buttonContainer: {
         flexDirection: "row",
