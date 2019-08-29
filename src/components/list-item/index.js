@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
 import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-// import Modal from "react-native-modal";
 
 import { Db } from '../../db';
 import ConfirmModal from '../../modals/confirm-modal';
@@ -13,7 +12,12 @@ class ListItem extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { item: this.props.item, translation: this.props.item.text.toUpperCase(), isModalVisible: false };
+        this.state = { item: this.props.item, 
+            translations: Object.assign([], this.props.item.translations), 
+            isModalVisible: false };
+    }
+    componentDidMount() {
+        // console.warn(Object.assign([], this.props.item.translations))
     }
 
     saveItem(item) {
@@ -23,15 +27,21 @@ class ListItem extends Component {
     }
 
     deleteItem(id) {
-        Db.open().deleteItem(id);
-        this.props.updateList();
+        // Db.open().deleteItem(id);
+        this.props.deleteItem(id);
     }
 
     async translate(item) {
-        var translater =  new TanslatorWatson();
+        var translater = new TanslatorWatson();
+        var result = await translater.translate({ text: item, model: 'en-pt' });
+        
+        this.state.item.translations[0].text = result.translations[0].translation;
+        this.setState({ translations: Object.assign([], this.state.item.translations) });
+    }
 
-        var result =  await translater.translate({text: item, model: 'en-pt'});
-        this.setState({translation : result.translations[0].translation});
+    updateTranslation = (index, newText) => {
+        this.state.item.translations[index].text = newText;
+        this.setState({ 'translations': this.state.item.translations })
     }
 
     okClick = (okClicked) => {
@@ -83,7 +93,7 @@ class ListItem extends Component {
                     style={styles.inputContainer}
                     multiline={true}
                     placeholder='Text'
-                    onChangeText={(text) => this.setState({ 'item': { ...this.state.item, 'text': text }, 'translation': text })}
+                    onChangeText={(text) => this.setState({ 'item': { ...this.state.item, 'text': text } })}
                     onBlur={() => { this.saveItem(this.state.item) }}
                     value={this.state.item.text}
                 />
@@ -91,7 +101,7 @@ class ListItem extends Component {
                 <View style={{ flexDirection: 'row', flex: 1 }}>
                     <Text style={styles.languageID}>Spanish</Text>
                     <TouchableOpacity
-                        style={{marginTop: 10}}
+                        style={{ marginTop: 10 }}
                         onPress={() => {
                             this.translate(this.state.item.text);
                         }}
@@ -103,14 +113,22 @@ class ListItem extends Component {
                         />
                     </TouchableOpacity>
                 </View>
-                <Input
-                    style={styles.inputContainer}
-                    multiline={true}
-                    placeholder="Translation"
-                    onChangeText={(translation) => this.setState({ 'translation': translation })}
-                    onBlur={() => { this.saveItem(this.state.item) }}
-                    value={this.state.translation}
-                />
+
+                {
+                    this.state.translations && this.state.translations.map((translation, index) => {
+                        return (
+                            <Input
+                                key={index}
+                                style={styles.inputContainer}
+                                multiline={true}
+                                placeholder="Translation"
+                                onChangeText={(newText) => this.updateTranslation(index, newText)}
+                                // onBlur={() => { this.saveTranslation(this.state.item.id, this.state.translations) }}
+                                value={translation.text}
+                            />)
+                    })
+                }
+
 
                 {/* <View style={styles.buttonContainer}>
 

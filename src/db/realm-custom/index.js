@@ -1,9 +1,11 @@
 import Realm from 'realm';
+import uuid from 'react-native-uuid';
 
-class Item { }
+// class Item { }
+// class Translations { }
 
-Item.schema = {
-    name: 'itens',
+const TranslationsSchema = {
+    name: 'Translations',
     primaryKey: 'id',
     properties: {
         id: 'string',
@@ -11,20 +13,29 @@ Item.schema = {
     }
 };
 
+const ItemSchema = {
+    name: 'Itens',
+    primaryKey: 'id',
+    properties: {
+        id: 'string',
+        text: 'string',
+        translations: { type: 'list', objectType: 'Translations' }
+    }
+};
+
 export class RealmDB {
-    name = "realm-db"
 
     addItem(item) {
 
-        try {
-            Realm.open({schema: [Item.schema]}).then(realm => {
-                realm.write(() => {
-                    realm.create('itens', { id: item.id, text: item.text }, true);
-                });
+        Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
+            realm.write(() => {
+                // let translations = realm.create('Translations', { id: uuid.v4(), text: 'Sample sample' }, true);
+                let newItem = realm.create('Itens', { id: item.id, text: item.text, translations: [] }, true);
+                newItem.translations.push({ id: uuid.v4(), text: 'hahaha' });
             });
-        } catch (e) {
-            console.error("add error ", e);
-        }
+
+            realm.close();
+        }).catch(e => { console.error("add error open ", e); });
 
     }
 
@@ -33,9 +44,11 @@ export class RealmDB {
 
         try {
 
-            return Realm.open({schema: [Item.schema]}).then(realm => {
-                return realm.objects('itens');
-            });
+            return Realm.open({ schema: [ItemSchema, TranslationsSchema] }).then(realm => {
+                let itens = realm.objects('Itens');
+                itens = this.convertToArray(itens);
+                return itens;
+            }).catch(e => { console.error("get error open ", e); });
 
         } catch (e) {
             console.error("get itens error ", e);
@@ -44,21 +57,26 @@ export class RealmDB {
 
     deleteItem(id) {
 
-        try {
-            Realm.open({schema: [Item.schema]}).then(realm => {
+        return Realm.open({ schema: [ItemSchema, TranslationsSchema] }).then(realm => {
 
-                const item = realm.objects('itens').filtered('id == $0', id.trim())[0];
+            const item = realm.objects('Itens').filtered('id == $0', id.trim())[0];
 
-                if(item) {
-                    realm.write(() => { realm.delete(item); });
-                }
-            }).catch(err => {
-                console.error("delete item open error ", err);
-            });
-        } catch(e) {
-            console.error("delete item error ", e);
-        }
+            if (item) {
+                realm.write(() => { realm.delete(item); });
+                return true;
+            }
+
+            return false;
+        }).catch(err => {
+            console.error("delete item open error ", err);
+        });
 
     }
 
+
+    convertToArray(realmObjectsArray) {
+        let copyOfJsonArray = Array.from(realmObjectsArray);
+        let jsonArray = JSON.parse(JSON.stringify(copyOfJsonArray));
+        return jsonArray;
+    }
 }

@@ -10,27 +10,21 @@ import modals from '../../translator/watson/models'
 
 class MainList extends Component {
 
-    texts = [
-        {
-            id: 1,
-            text: ""
-        }
-    ];
+    itens = [{}];
 
     selectedLanguageModel = 'fr-en';
 
     constructor(props) {
         super(props);
         this.state = {
-            itens: this.texts,
+            itens: this.itens,
             isMenuVisible: false,
             selectedLanguage: "French",
-            selectedLanguageTarget: {src: 'French', target: 'English', model: 'fr-en'},
+            selectedLanguageTarget: { src: 'French', target: 'English', model: 'fr-en' },
             languages: [],
             targetLanguages: [],
             selectedLanguageModel: this.selectedLanguageModel
         };
-        this.getItens();
     }
 
     componentDidMount() {
@@ -42,17 +36,18 @@ class MainList extends Component {
         const preSelected = this.getItemByModal(this.selectedLanguageModel);
         state = { languages: languages, selectedLanguage: (preSelected.src || ""), selectedLanguageTarget: (preSelected.target || "") }
         this.setState(state, () => this.selectLanguage(preSelected.src));
+        this.getItens();
     }
 
     addNewItem() {
-        const item = { id: uuid.v4(), text: "" }
+        const item = { id: uuid.v4(), text: "", translations: [{ id: uuid.v4(), text: "" }] }
         let itens = Array.from(this.state.itens);
         itens.push(item);
         this.setState({ itens });
     }
 
     async getItens() {
-        const itens = await Db.open().getItens()
+        const itens = await Db.open().getItens();
         this.setState({ itens });
     }
 
@@ -61,7 +56,7 @@ class MainList extends Component {
     }
 
     getItemByModal(model) {
-        return modals.list.filter(item => { return item.model === model})[0];
+        return modals.list.filter(item => { return item.model === model })[0];
     }
 
     changeMenuVisibility = (isMenuVisible) => {
@@ -87,6 +82,15 @@ class MainList extends Component {
             return item.src === this.state.selectedLanguage && item.target === this.state.selectedLanguageTarget
         });
         this.setState({ selectedLanguageModel: (itens[0].model || "") }, () => this.changeMenuVisibility(false));
+    }
+
+    deleteItem = async (id) => {
+        const deleted = await Db.open().deleteItem(id);
+        if(deleted) {
+            let itens = this.state.itens;
+            itens = itens.filter(i => {return i.id !== id});
+            this.setState({ itens });
+        }
     }
 
     render() {
@@ -123,9 +127,9 @@ class MainList extends Component {
                                         })
                                     }
                                 </Picker>
-                                </View>
-                                <Text style={{ fontSize: 20 }}>To</Text>
-                                <View style={{ flexDirection: 'row' }}>
+                            </View>
+                            <Text style={{ fontSize: 20 }}>To</Text>
+                            <View style={{ flexDirection: 'row' }}>
                                 <Picker
                                     selectedValue={this.state.selectedLanguageTarget}
                                     style={styles.languagesPicker}
@@ -139,7 +143,7 @@ class MainList extends Component {
                                         })
                                     }
                                 </Picker>
-                                </View>
+                            </View>
 
                             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                 <TouchableOpacity
@@ -169,14 +173,16 @@ class MainList extends Component {
                 </TouchableOpacity>
 
                 {
-                    this.state.itens.map(item => {
-                        return (
-                            <Card containerStyle={{ padding: 0 }} key={item.id}>
-                                <Fragment>
-                                    <ListItem item={item} updateList={this.updateList} />
-                                </Fragment>
-                            </Card>
-                        );
+                    this.state.itens.length > 0 && this.state.itens.map((item, index) => {
+                        if (item.id) {
+                            return (
+                                <Card key={item.id} containerStyle={{ padding: 0 }}>
+                                    <Fragment>
+                                        <ListItem item={item} deleteItem={this.deleteItem} />
+                                    </Fragment>
+                                </Card>
+                            );
+                        }
                     })
                 }
 
