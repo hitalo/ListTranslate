@@ -29,9 +29,11 @@ export class RealmDB {
 
         Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
             realm.write(() => {
-                // let translations = realm.create('Translations', { id: uuid.v4(), text: 'Sample sample' }, true);
                 let newItem = realm.create('Itens', { id: item.id, text: item.text, translations: [] }, true);
-                newItem.translations.push({ id: uuid.v4(), text: 'hahaha' });
+                const translations = Object.assign([], item.translations);
+                translations.forEach(translation => {
+                    newItem.translations.push(realm.create('Translations', translation, true));
+                });
             });
 
             realm.close();

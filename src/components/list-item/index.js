@@ -41,7 +41,7 @@ class ListItem extends Component {
 
     updateTranslation = (index, newText) => {
         this.state.item.translations[index].text = newText;
-        this.setState({ 'translations': this.state.item.translations })
+        this.setState({ translations: Object.assign([], this.state.item.translations) })
     }
 
     okClick = (okClicked) => {
