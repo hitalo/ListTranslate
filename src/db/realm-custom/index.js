@@ -25,7 +25,7 @@ const ItemSchema = {
 
 export class RealmDB {
 
-    addItem(item) {
+    saveItem(item) {
 
         Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
             realm.write(() => {
@@ -37,7 +37,7 @@ export class RealmDB {
             });
 
             realm.close();
-        }).catch(e => { console.error("add error open ", e); });
+        }).catch(e => { console.error("save item error open ", e); });
 
     }
 
@@ -72,6 +72,19 @@ export class RealmDB {
         }).catch(err => {
             console.error("delete item open error ", err);
         });
+
+    }
+
+    saveTranslation(id, translation) {
+
+        Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
+            realm.write(() => {
+                let item = realm.create('Itens', { id: id }, true);                
+                Object.assign([], item.translations).push(realm.create('Translations', translation, true));
+            });
+
+            realm.close();
+        }).catch(e => { console.error("save translation error open ", e); });
 
     }
 

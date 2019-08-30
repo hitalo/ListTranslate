@@ -22,8 +22,12 @@ class ListItem extends Component {
 
     saveItem(item) {
         if (item.text) {
-            Db.open().addItem(item);
+            Db.open().saveItem(item);
         }
+    }
+
+    saveTranslation(index) {
+        Db.open().saveTranslation(this.state.item.id, this.state.item.translations[index]);
     }
 
     deleteItem(id) {
@@ -123,7 +127,7 @@ class ListItem extends Component {
                                 multiline={true}
                                 placeholder="Translation"
                                 onChangeText={(newText) => this.updateTranslation(index, newText)}
-                                // onBlur={() => { this.saveTranslation(this.state.item.id, this.state.translations) }}
+                                onBlur={() => { this.saveTranslation(index) }}
                                 value={translation.text}
                             />)
                     })
