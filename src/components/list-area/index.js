@@ -12,35 +12,32 @@ class MainList extends Component {
 
     itens = [{}];
 
-    selectedLanguageModel = 'fr-en';
-
     constructor(props) {
         super(props);
         this.state = {
             itens: this.itens,
             isMenuVisible: false,
-            selectedLanguage: "French",
-            selectedLanguageTarget: { src: 'French', target: 'English', model: 'fr-en' },
+            config: { id: '', src: 'French', target: 'English', model: 'fr-en' },
             languages: [],
-            targetLanguages: [],
-            selectedLanguageModel: this.selectedLanguageModel
+            targetLanguages: []
         };
     }
 
     componentDidMount() {
-        languages = [];
-        modals.list.map(item => {
-            if (!languages.includes(item.src))
-                languages.push(item.src);
-        });
-        const preSelected = this.getItemByModal(this.selectedLanguageModel);
-        state = { languages: languages, selectedLanguage: (preSelected.src || ""), selectedLanguageTarget: (preSelected.target || "") }
-        this.setState(state, () => this.selectLanguage(preSelected.src));
+        this.getConfigs();
         this.getItens();
     }
 
     addNewItem() {
-        const item = { id: uuid.v4(), text: "", translations: [{ id: uuid.v4(), text: "" }] }
+        const item = {
+            id: uuid.v4(),
+            text: "",
+            translations: [{
+                id: uuid.v4(),
+                text: ""
+            }]
+        }
+
         let itens = Array.from(this.state.itens);
         itens.push(item);
         this.setState({ itens });
@@ -49,6 +46,18 @@ class MainList extends Component {
     async getItens() {
         const itens = await Db.open().getItens();
         this.setState({ itens });
+    }
+
+    async getConfigs() {
+        let configs = await Db.open().getConfigs();
+        configs.map(c => {
+            let config = this.state.config;
+            config.id = c.id;
+            config.src = c.src;
+            config.target = c.target;
+            config.model = c.model;
+            this.setState({ config });
+        });
     }
 
     updateList = () => {
@@ -60,7 +69,17 @@ class MainList extends Component {
     }
 
     changeMenuVisibility = (isMenuVisible) => {
-        this.getItemByModal(this.state.selectedLanguageModel);
+        if (isMenuVisible && this.state.languages.length === 0) {
+           
+            languages = [];
+            modals.list.map(item => {
+                if (!languages.includes(item.src))
+                    languages.push(item.src);
+            });
+
+            state = { languages: languages }
+            this.setState(state, () => this.selectLanguage(this.state.config.src));
+        }
         this.setState({ isMenuVisible });
     }
 
@@ -70,25 +89,34 @@ class MainList extends Component {
             if (item.src === selectedLanguage)
                 targets.push(item.target);
         });
-        this.setState({ selectedLanguage: selectedLanguage, targetLanguages: targets });
+        let config = { ...this.state.config }
+        config.src = selectedLanguage;
+        this.setState({ config: config, targetLanguages: targets });
     }
 
     selectLanguageTarget(item) {
-        this.setState({ selectedLanguageTarget: item });
+        let config = { ...this.state.config }
+        config.target = item;
+        this.setState({ config });
     }
 
     saveModel() {
         itens = modals.list.filter(item => {
-            return item.src === this.state.selectedLanguage && item.target === this.state.selectedLanguageTarget
+            return item.src === this.state.config.src && item.target === this.state.config.target
         });
-        this.setState({ selectedLanguageModel: (itens[0].model || "") }, () => this.changeMenuVisibility(false));
+        let config = { ...this.state.config }
+        config.model = (itens[0].model || "");
+        this.setState({ config }, () => {
+            Db.open().saveConfig(config);
+            this.changeMenuVisibility(false)
+        });
     }
 
     deleteItem = async (id) => {
         const deleted = await Db.open().deleteItem(id);
-        if(deleted) {
+        if (deleted) {
             let itens = this.state.itens;
-            itens = itens.filter(i => {return i.id !== id});
+            itens = itens.filter(i => { return i.id !== id });
             this.setState({ itens });
         }
     }
@@ -108,19 +136,13 @@ class MainList extends Component {
                             <Text style={{ fontSize: 20 }}>From</Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <Picker
-                                    selectedValue={this.state.selectedLanguage}
+                                    selectedValue={this.state.config.src}
                                     style={styles.languagesPicker}
                                     onValueChange={(itemValue, itemIndex) =>
                                         this.selectLanguage(itemValue)
                                     }
                                 >
 
-
-                                    {/* {
-                                        modals.list.map((item, index) => {
-                                            return (<Picker.Item label={item.src + " - " + item.target} value={item.model} key={index} />)
-                                        })
-                                    } */}
                                     {
                                         this.state.languages.map((language, index) => {
                                             return (<Picker.Item label={language} value={language} key={index} />)
@@ -131,7 +153,7 @@ class MainList extends Component {
                             <Text style={{ fontSize: 20 }}>To</Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <Picker
-                                    selectedValue={this.state.selectedLanguageTarget}
+                                    selectedValue={this.state.config.target}
                                     style={styles.languagesPicker}
                                     onValueChange={(itemValue, itemIndex) =>
                                         this.selectLanguageTarget(itemValue)
@@ -216,7 +238,6 @@ const styles = StyleSheet.create({
     },
     newItem: {
         fontSize: 24,
-        // flex: 0.5,
         height: 50,
         marginTop: 20,
         marginBottom: 20,

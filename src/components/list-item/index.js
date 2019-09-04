@@ -16,9 +16,6 @@ class ListItem extends Component {
             translations: Object.assign([], this.props.item.translations), 
             isModalVisible: false };
     }
-    componentDidMount() {
-        // console.warn(Object.assign([], this.props.item.translations))
-    }
 
     saveItem(item) {
         if (item.text) {
@@ -31,7 +28,6 @@ class ListItem extends Component {
     }
 
     deleteItem(id) {
-        // Db.open().deleteItem(id);
         this.props.deleteItem(id);
     }
 
@@ -133,19 +129,6 @@ class ListItem extends Component {
                     })
                 }
 
-
-                {/* <View style={styles.buttonContainer}>
-
-                    <TouchableOpacity
-                        style={styles.saveButton}
-                        onPress={() => {
-                            this.translate(this.item);
-                        }}
-                    >
-                        <Text style={{ color: 'white' }}>TRANSLATE</Text>
-                    </TouchableOpacity>
-                </View> */}
-
             </View>
         );
     }
@@ -181,7 +164,6 @@ const styles = StyleSheet.create({
         borderRadius: 20
     },
     deleteButton: {
-        // flex: 0.1,
         height: 30,
         backgroundColor: 'red',
         alignItems: 'center',
