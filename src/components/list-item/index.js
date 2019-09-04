@@ -33,7 +33,7 @@ class ListItem extends Component {
 
     async translate(item) {
         var translater = new TanslatorWatson();
-        var result = await translater.translate({ text: item, model: 'en-pt' });
+        var result = await translater.translate({ text: item, model: this.props.config.model });
         
         this.state.item.translations[0].text = result.translations[0].translation;
         this.setState({ translations: Object.assign([], this.state.item.translations) });
@@ -89,6 +89,7 @@ class ListItem extends Component {
                     </TouchableOpacity>
                 </View>
 
+                <Text style={styles.languageID}>{ this.props.config.src }</Text>
                 <Input
                     style={styles.inputContainer}
                     multiline={true}
@@ -99,7 +100,7 @@ class ListItem extends Component {
                 />
 
                 <View style={{ flexDirection: 'row', flex: 1 }}>
-                    <Text style={styles.languageID}>Spanish</Text>
+                    <Text style={styles.languageID}>{ this.props.config.target }</Text>
                     <TouchableOpacity
                         style={{ marginTop: 10 }}
                         onPress={() => {

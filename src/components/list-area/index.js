@@ -200,7 +200,7 @@ class MainList extends Component {
                             return (
                                 <Card key={item.id} containerStyle={{ padding: 0 }}>
                                     <Fragment>
-                                        <ListItem item={item} deleteItem={this.deleteItem} />
+                                        <ListItem config={this.state.config} item={item} deleteItem={this.deleteItem} />
                                     </Fragment>
                                 </Card>
                             );
