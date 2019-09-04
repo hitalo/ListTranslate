@@ -37,6 +37,7 @@ class ListItem extends Component {
         
         this.state.item.translations[0].text = result.translations[0].translation;
         this.setState({ translations: Object.assign([], this.state.item.translations) });
+        this.saveTranslation(0); //meanwhile each item only have the pos0 tranlation
     }
 
     updateTranslation = (index, newText) => {
