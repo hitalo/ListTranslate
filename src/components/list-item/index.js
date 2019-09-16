@@ -24,7 +24,9 @@ class ListItem extends Component {
     }
 
     saveTranslation(index) {
-        Db.open().saveTranslation(this.state.item.id, this.state.item.translations[index]);
+        if(this.state.item.text) {
+            Db.open().saveTranslation(this.state.item.id, this.state.item.translations[index]);
+        }
     }
 
     deleteItem(id) {
