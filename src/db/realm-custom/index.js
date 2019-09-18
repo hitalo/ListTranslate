@@ -15,8 +15,18 @@ const ItemSchema = {
     primaryKey: 'id',
     properties: {
         id: 'string',
+        group_id: 'string',
         text: 'string',
         translations: { type: 'list', objectType: 'Translations' }
+    }
+};
+
+const GroupSchema = {
+    name: 'Groups',
+    primaryKey: 'id',
+    properties: {
+        id: 'string',
+        name: 'string',
     }
 };
 
@@ -25,6 +35,7 @@ const ConfigsSchema = {
     primaryKey: 'id',
     properties: {
         id: 'string',
+        group_id: 'string',
         src: 'string',
         target: 'string',
         model: 'string'
@@ -37,7 +48,7 @@ export class RealmDB {
 
         Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
             realm.write(() => {
-                let newItem = realm.create('Itens', { id: item.id, text: item.text, translations: [] }, true);
+                let newItem = realm.create('Itens', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
                 const translations = Object.assign([], item.translations);
                 translations.forEach(translation => {
                     newItem.translations.push(realm.create('Translations', translation, true));
@@ -50,12 +61,12 @@ export class RealmDB {
     }
 
 
-    getItens() {
+    getItens(group_id) {
 
         try {
 
             const realm = new Realm({ schema: [ItemSchema, TranslationsSchema] });
-            let itens = realm.objects('Itens');
+            let itens = realm.objects('Itens').filtered('group_id == $0', group_id.trim());
             itens = this.convertToArray(itens);
             realm.close();
             return itens;
@@ -98,12 +109,37 @@ export class RealmDB {
 
     }
 
-    saveConfig(config) {
+    saveGroup(group) {
+        Realm.open({ schema: [GroupSchema] }).then(realm => {
+            realm.write(() => {
+                realm.create('Groups', { id: group.id, name: group.name }, true);
+            });
 
+            realm.close();
+        }).catch(e => { console.error("save group error open ", e); });
+    }
+
+    getGroups() {
+
+        try {
+
+            const realm = new Realm({ schema: [GroupSchema] });
+            let groups = realm.objects('Groups');
+            groups = this.convertToArray(groups);
+            realm.close();
+            return groups;
+
+        } catch (e) {
+            console.error("get groups error ", e);
+        }
+    }
+
+    saveConfig(config) {
+        
         Realm.open({ schema: [ConfigsSchema] }).then(realm => {
             realm.write(() => {
                 config.id = (config.id || uuid.v4());
-                realm.create('Configs', { id: config.id, src: config.src, target: config.target, model: config.model }, true);
+                realm.create('Configs', { id: config.id, group_id: config.group_id, src: config.src, target: config.target, model: config.model }, true);
             });
 
             realm.close();
@@ -111,12 +147,12 @@ export class RealmDB {
 
     }
 
-    getConfigs() {
+    getConfigs(group_id) {
 
         try {
 
             const realm = new Realm({ schema: [ConfigsSchema] });
-            let configs = realm.objects('Configs');
+            let configs = realm.objects('Configs').filtered('group_id == $0', group_id.trim());
             configs = this.convertToArray(configs);
             realm.close();
             return configs;

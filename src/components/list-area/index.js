@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { StyleSheet, View, TouchableOpacity, Modal, Picker, Text, ScrollView, Button } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Modal, Picker, Text, ScrollView } from 'react-native';
 import uuid from 'react-native-uuid';
 import { Card } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -32,7 +32,7 @@ class MainList extends Component {
 
     static navigationOptions = ({navigation}) => {
         return {
-            title: 'Nome da Lista',
+            title: navigation.getParam('group').name,
             headerRight: (
                 <TouchableOpacity
                     onPress={() => {
@@ -48,6 +48,7 @@ class MainList extends Component {
     addNewItem() {
         const item = {
             id: uuid.v4(),
+            group_id: this.props.navigation.getParam('group').id,
             text: "",
             translations: [{
                 id: uuid.v4(),
@@ -61,15 +62,16 @@ class MainList extends Component {
     }
 
     async getItens() {
-        const itens = await Db.open().getItens();
+        const itens = await Db.open().getItens(this.props.navigation.getParam('group').id);
         this.setState({ itens });
     }
 
     async getConfigs() {
-        let configs = await Db.open().getConfigs();
+        let configs = await Db.open().getConfigs(this.props.navigation.getParam('group').id);
         configs.map(c => {
             let config = this.state.config;
             config.id = c.id;
+            config.group_id = c.group_id;
             config.src = c.src;
             config.target = c.target;
             config.model = c.model;
@@ -123,6 +125,7 @@ class MainList extends Component {
         });
         let config = { ...this.state.config }
         config.model = (itens[0].model || "");
+        config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
         this.setState({ config }, () => {
             Db.open().saveConfig(config);
             this.changeMenuVisibility(false)
