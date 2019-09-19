@@ -19,6 +19,8 @@ class MainList extends Component {
             itens: this.itens,
             isMenuVisible: false,
             config: { id: '', src: 'French', target: 'English', model: 'fr-en' },
+            src: 'Portuguese',
+            target: 'English',
             languages: [],
             targetLanguages: []
         };
@@ -30,7 +32,7 @@ class MainList extends Component {
         this.props.navigation.setParams({ changeMenuVisibility: this.changeMenuVisibility });
     }
 
-    static navigationOptions = ({navigation}) => {
+    static navigationOptions = ({ navigation }) => {
         return {
             title: navigation.getParam('group').name,
             headerRight: (
@@ -68,15 +70,19 @@ class MainList extends Component {
 
     async getConfigs() {
         let configs = await Db.open().getConfigs(this.props.navigation.getParam('group').id);
-        configs.map(c => {
-            let config = this.state.config;
-            config.id = c.id;
-            config.group_id = c.group_id;
-            config.src = c.src;
-            config.target = c.target;
-            config.model = c.model;
-            this.setState({ config });
-        });
+        if (configs.length) {
+            configs.map(c => {
+                let config = this.state.config;
+                config.id = c.id;
+                config.group_id = c.group_id;
+                config.src = c.src;
+                config.target = c.target;
+                config.model = c.model;
+                this.setState({ config }, () => this.getLanguages());
+            });
+        } else {
+            this.getLanguages();
+        }
     }
 
     updateList = () => {
@@ -88,18 +94,7 @@ class MainList extends Component {
     }
 
     changeMenuVisibility = (isMenuVisible) => {
-        if (isMenuVisible && this.state.languages.length === 0) {
-
-            languages = [];
-            modals.list.map(item => {
-                if (!languages.includes(item.src))
-                    languages.push(item.src);
-            });
-
-            state = { languages: languages }
-            this.setState(state, () => this.selectLanguage(this.state.config.src));
-        }
-        this.setState({ isMenuVisible });
+        this.setState({ isMenuVisible, src: this.state.config.src, target: this.state.config.target });
     }
 
     selectLanguage(selectedLanguage) {
@@ -108,23 +103,24 @@ class MainList extends Component {
             if (item.src === selectedLanguage)
                 targets.push(item.target);
         });
-        let config = { ...this.state.config }
-        config.src = selectedLanguage;
-        this.setState({ config: config, targetLanguages: targets });
+        src = selectedLanguage;
+        target = targets[0];
+        this.setState({ src, target, targetLanguages: targets });
     }
 
     selectLanguageTarget(item) {
-        let config = { ...this.state.config }
-        config.target = item;
-        this.setState({ config });
+        const target = item;
+        this.setState({ target });
     }
 
     saveModel() {
         itens = modals.list.filter(item => {
-            return item.src === this.state.config.src && item.target === this.state.config.target
+            return item.src === this.state.src && item.target === this.state.target
         });
         let config = { ...this.state.config }
         config.model = (itens[0].model || "");
+        config.src = itens[0].src;
+        config.target = itens[0].target;
         config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
         this.setState({ config }, () => {
             Db.open().saveConfig(config);
@@ -141,12 +137,24 @@ class MainList extends Component {
         }
     }
 
+    getLanguages() {
+        languages = [];
+        targets = [];
+        modals.list.map(item => {
+            if (!languages.includes(item.src))
+                languages.push(item.src);
+
+            if (item.src === this.state.config.src)
+                targets.push(item.target);
+        });
+        this.setState({ languages: languages, targetLanguages: targets });
+    }
+
     render() {
         return (
             <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#3e74f0', '#799df2', '#d5e1fb']} style={styles.linearGradient}>
                 <ScrollView
                     contentInsetAdjustmentBehavior="automatic"
-                    // contentContainerStyle={{ flexGrow: 1 }}
                     style={styles.scrollView}>
                     <View style={styles.container}>
 
@@ -161,7 +169,7 @@ class MainList extends Component {
                                     <Text style={{ fontSize: 20 }}>From</Text>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Picker
-                                            selectedValue={this.state.config.src}
+                                            selectedValue={this.state.src}
                                             style={styles.languagesPicker}
                                             onValueChange={(itemValue, itemIndex) =>
                                                 this.selectLanguage(itemValue)
@@ -178,7 +186,7 @@ class MainList extends Component {
                                     <Text style={{ fontSize: 20 }}>To</Text>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Picker
-                                            selectedValue={this.state.config.target}
+                                            selectedValue={this.state.target}
                                             style={styles.languagesPicker}
                                             onValueChange={(itemValue, itemIndex) =>
                                                 this.selectLanguageTarget(itemValue)
@@ -228,7 +236,7 @@ class MainList extends Component {
                                     this.addNewItem();
                                 }}
                             >
-                                <Icon name="add" size={50} color="white"/>
+                                <Icon name="add" size={50} color="white" />
                             </TouchableOpacity>
                         </View>
 
