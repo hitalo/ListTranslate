@@ -1,13 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import { StyleSheet, View, TouchableOpacity, Modal, Picker, Text, ScrollView } from 'react-native';
 import uuid from 'react-native-uuid';
-import { Card } from 'react-native-elements';
+import { Card, Divider } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 
 import ListItem from '../list-item';
 import { Db } from '../../db';
 import modals from '../../translator/watson/models'
+import ConfirmModal from '../../modals/confirm-modal';
 
 class MainList extends Component {
 
@@ -18,6 +19,7 @@ class MainList extends Component {
         this.state = {
             itens: this.itens,
             isMenuVisible: false,
+            isConfirmMenuVisible: false,
             config: { id: '', src: 'French', target: 'English', model: 'fr-en' },
             src: 'Portuguese',
             target: 'English',
@@ -97,6 +99,10 @@ class MainList extends Component {
         this.setState({ isMenuVisible, src: this.state.config.src, target: this.state.config.target });
     }
 
+    changeConfirmMenuVisibility = (isConfirmMenuVisible) => {
+        this.setState({ isConfirmMenuVisible });
+    }
+
     selectLanguage(selectedLanguage) {
         targets = [];
         modals.list.map(item => {
@@ -150,6 +156,18 @@ class MainList extends Component {
         this.setState({ languages: languages, targetLanguages: targets });
     }
 
+    deleteGroup = async (isOkSelected) => {
+        if(isOkSelected) {
+            await Db.open().deleteGroup(this.props.navigation.getParam('group').id);
+            this.changeConfirmMenuVisibility(false);
+            this.changeMenuVisibility(false);
+            this.props.navigation.navigate('GroupArea');
+            this.props.navigation.state.params.updateGroups();
+        }
+
+        this.changeConfirmMenuVisibility(false);
+    }
+
     render() {
         return (
             <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#3e74f0', '#799df2', '#d5e1fb']} style={styles.linearGradient}>
@@ -157,6 +175,17 @@ class MainList extends Component {
                     contentInsetAdjustmentBehavior="automatic"
                     style={styles.scrollView}>
                     <View style={styles.container}>
+
+                    <Modal
+                            style={{ flex: 1 }}
+                            visible={this.state.isConfirmMenuVisible}
+                            transparent={true}
+                            onRequestClose={() => this.changeConfirmMenuVisibility(false)}>
+                                <ConfirmModal 
+                                    text="Delete this group?" 
+                                    title="Confirm delete"
+                                    okClick={this.deleteGroup} />
+                            </Modal>
 
                         <Modal
                             style={{ flex: 1 }}
@@ -166,7 +195,8 @@ class MainList extends Component {
 
                             <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
                                 <View style={styles.menuView}>
-                                    <Text style={{ fontSize: 20 }}>From</Text>
+                                    <Text style={{ fontSize: 20, marginBottom: 10 }}>Languages</Text>
+                                    <Text style={{ fontSize: 15 }}>From</Text>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Picker
                                             selectedValue={this.state.src}
@@ -183,7 +213,7 @@ class MainList extends Component {
                                             }
                                         </Picker>
                                     </View>
-                                    <Text style={{ fontSize: 20 }}>To</Text>
+                                    <Text style={{ fontSize: 15 }}>To</Text>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Picker
                                             selectedValue={this.state.target}
@@ -208,6 +238,22 @@ class MainList extends Component {
                                             }}
                                         >
                                             <Text style={{ color: 'white', fontSize: 20 }}>OK</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <Divider style={{ backgroundColor: 'black' }} />
+
+                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                        <TouchableOpacity
+                                            style={styles.menuDeleteGroupButton}
+                                            onPress={() => {
+                                                this.changeConfirmMenuVisibility(true);
+                                            }}
+                                        >
+                                            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                                                <Icon name="clear" size={20} color="red" light/>
+                                                <Text style={{ color: 'red', fontSize: 20, marginLeft: 10 }}>DELETE GROUP</Text>
+                                            </View>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -278,9 +324,18 @@ const styles = StyleSheet.create({
         backgroundColor: 'green',
         justifyContent: 'center',
         alignItems: 'center',
-        alignItems: 'center',
         borderRadius: 20,
-        marginTop: 20
+        marginTop: 20,
+        marginBottom: 20,
+    },
+    menuDeleteGroupButton: {
+        flex: 1,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 30,
+        borderColor: 'red',
+        borderWidth: 1
     },
     linearGradient: {
         flex: 1,

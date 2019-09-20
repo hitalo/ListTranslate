@@ -37,7 +37,7 @@ class GroupArea extends Component {
         }
     };
 
-    async getGroups() {
+    getGroups = async () => {
         groups = await Db.open().getGroups()
         this.setState({ groups });
     }
@@ -102,7 +102,7 @@ class GroupArea extends Component {
                                             key={group.id}
                                             style={styles.groupButton}
                                             title="next"
-                                            onPress={() => this.props.navigation.navigate('MainList', { group: group })}
+                                            onPress={() => this.props.navigation.navigate('MainList', { group: group, updateGroups: this.getGroups })}
                                         >
                                             <Text style={{ color: '#fff', fontSize: 20, textAlign: 'center' }}>{group.name}</Text>
                                         </TouchableOpacity>

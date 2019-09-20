@@ -83,7 +83,7 @@ export class RealmDB {
             const item = realm.objects('Itens').filtered('id == $0', id.trim())[0];
 
             if (item) {
-                realm.write(() => { realm.delete(item); });
+                realm.write(() => { realm.delete(item); }); //TODO delete cascade?
                 realm.close();
                 return true;
             }
@@ -132,6 +132,25 @@ export class RealmDB {
         } catch (e) {
             console.error("get groups error ", e);
         }
+    }
+
+    deleteGroup(id) {
+
+        return Realm.open({ schema: [GroupSchema, ItemSchema, TranslationsSchema] }).then(realm => {
+
+            const group = realm.objects('Groups').filtered('id == $0', id.trim())[0];
+            const itens = realm.objects('Itens').filtered('group_id == $0', id.trim());
+
+            if (group) {
+                realm.write(() => { realm.delete(group); realm.delete(itens)}); //TODO delete cascade?
+            }
+            
+
+            realm.close();
+        }).catch(err => {
+            console.error("delete group open error ", err);
+        });
+
     }
 
     saveConfig(config) {
