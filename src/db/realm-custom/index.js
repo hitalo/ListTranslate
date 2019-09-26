@@ -37,8 +37,17 @@ const ConfigsSchema = {
         id: 'string',
         group_id: 'string',
         src: 'string',
+        targets: { type: 'list', objectType: 'ConfigTarget' }
+    }
+}
+
+const ConfigTargetSchema = {
+    name: 'ConfigTarget',
+    primaryKey: 'id',
+    properties: {
+        id: 'string',
         target: 'string',
-        model: 'string'
+        model: 'string',
     }
 }
 
@@ -155,10 +164,16 @@ export class RealmDB {
 
     saveConfig(config) {
         
-        Realm.open({ schema: [ConfigsSchema] }).then(realm => {
+        console.log(config);
+        Realm.open({ schema: [ConfigsSchema, ConfigTargetSchema] }).then(realm => {
             realm.write(() => {
                 config.id = (config.id || uuid.v4());
-                realm.create('Configs', { id: config.id, group_id: config.group_id, src: config.src, target: config.target, model: config.model }, true);
+                let newConfig = realm.create('Configs', { id: config.id, group_id: config.group_id, src: config.src, targets: [] }, true);
+                const targets = Object.assign([], config.targets);
+                targets.forEach(target => {
+                    target.id = (target.id || uuid.v4());
+                    newConfig.targets.push(realm.create('ConfigTarget', target, true));
+                });
             });
 
             realm.close();
@@ -170,7 +185,7 @@ export class RealmDB {
 
         try {
 
-            const realm = new Realm({ schema: [ConfigsSchema] });
+            const realm = new Realm({ schema: [ConfigsSchema, ConfigTargetSchema] });
             let configs = realm.objects('Configs').filtered('group_id == $0', group_id.trim());
             configs = this.convertToArray(configs);
             realm.close();

@@ -20,9 +20,9 @@ class MainList extends Component {
             itens: this.itens,
             isMenuVisible: false,
             isConfirmMenuVisible: false,
-            config: { id: '', src: 'French', target: 'English', model: 'fr-en' },
-            src: 'Portuguese',
-            target: 'English',
+            config: { id: '', src: 'English', targets: [{ id: '', target: 'German', model: 'en-de' }, { id: '', target: 'Spanish', model: 'en-es' }] },
+            src: 'English',
+            targets: [{ target: 'German', model: 'en-de' }, { target: 'Spanish', model: 'en-es' }],
             languages: [],
             targetLanguages: []
         };
@@ -50,15 +50,16 @@ class MainList extends Component {
     };
 
     addNewItem() {
-        const item = {
+        let item = {
             id: uuid.v4(),
             group_id: this.props.navigation.getParam('group').id,
             text: "",
-            translations: [{
-                id: uuid.v4(),
-                text: ""
-            }]
+            translations: []
         }
+
+        this.state.config.targets.map(target => {
+            item.translations.push({ id: uuid.v4(), text: "" });
+        });
 
         let itens = Array.from(this.state.itens);
         itens.push(item);
@@ -78,8 +79,7 @@ class MainList extends Component {
                 config.id = c.id;
                 config.group_id = c.group_id;
                 config.src = c.src;
-                config.target = c.target;
-                config.model = c.model;
+                config.targets = Object.assign([], c.targets);
                 this.setState({ config }, () => this.getLanguages());
             });
         } else {
@@ -96,7 +96,19 @@ class MainList extends Component {
     }
 
     changeMenuVisibility = (isMenuVisible) => {
-        this.setState({ isMenuVisible, src: this.state.config.src, target: this.state.config.target });
+
+        if (isMenuVisible) {
+            let targets = this.state.targets;
+            this.state.config.targets.map((target, index) => {
+                if (targets[index]) {
+                    targets[index].target = target.target;
+                    targets[index].model = target.model;
+                }
+            });
+            this.setState({ targets });
+        }
+
+        this.setState({ isMenuVisible });
     }
 
     changeConfirmMenuVisibility = (isConfirmMenuVisible) => {
@@ -104,29 +116,45 @@ class MainList extends Component {
     }
 
     selectLanguage(selectedLanguage) {
-        targets = [];
+        allTargets = [];
         modals.list.map(item => {
             if (item.src === selectedLanguage)
-                targets.push(item.target);
+                allTargets.push(item.target);
         });
         src = selectedLanguage;
-        target = targets[0];
-        this.setState({ src, target, targetLanguages: targets });
+
+        let targets = this.state.targets;
+        let itens = modals.list.filter(item => {
+            return item.src === selectedLanguage && item.target === allTargets[0]
+        });
+        targets.map(target => {
+            target.target = allTargets[0];
+            target.model = itens[0].model;
+        });
+        this.setState({ src, targets }, () => this.setState({ targetLanguages: allTargets }));
     }
 
-    selectLanguageTarget(item) {
-        const target = item;
-        this.setState({ target });
+    selectLanguageTarget(newTarget, index) {
+
+        let itens = modals.list.filter(item => {
+            return item.src === this.state.src && item.target === newTarget
+        });
+        let targets = this.state.targets;
+        targets[index].target = newTarget;
+        targets[index].model = itens[0].model;
+        this.setState({ targets });
     }
 
     saveModel() {
-        itens = modals.list.filter(item => {
-            return item.src === this.state.src && item.target === this.state.target
-        });
+
         let config = { ...this.state.config }
-        config.model = (itens[0].model || "");
-        config.src = itens[0].src;
-        config.target = itens[0].target;
+        config.src = this.state.src;
+        this.state.targets.map((target, index) => {
+            if (config.targets[index]) {
+                config.targets[index].target = target.target;
+                config.targets[index].model = target.model;
+            }
+        });
         config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
         this.setState({ config }, () => {
             Db.open().saveConfig(config);
@@ -157,7 +185,7 @@ class MainList extends Component {
     }
 
     deleteGroup = async (isOkSelected) => {
-        if(isOkSelected) {
+        if (isOkSelected) {
             await Db.open().deleteGroup(this.props.navigation.getParam('group').id);
             this.changeConfirmMenuVisibility(false);
             this.changeMenuVisibility(false);
@@ -176,16 +204,16 @@ class MainList extends Component {
                     style={styles.scrollView}>
                     <View style={styles.container}>
 
-                    <Modal
+                        <Modal
                             style={{ flex: 1 }}
                             visible={this.state.isConfirmMenuVisible}
                             transparent={true}
                             onRequestClose={() => this.changeConfirmMenuVisibility(false)}>
-                                <ConfirmModal 
-                                    text="Delete this group?" 
-                                    title="Confirm delete"
-                                    okClick={this.deleteGroup} />
-                            </Modal>
+                            <ConfirmModal
+                                text="Delete this group?"
+                                title="Confirm delete"
+                                okClick={this.deleteGroup} />
+                        </Modal>
 
                         <Modal
                             style={{ flex: 1 }}
@@ -214,21 +242,27 @@ class MainList extends Component {
                                         </Picker>
                                     </View>
                                     <Text style={{ fontSize: 15 }}>To</Text>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Picker
-                                            selectedValue={this.state.target}
-                                            style={styles.languagesPicker}
-                                            onValueChange={(itemValue, itemIndex) =>
-                                                this.selectLanguageTarget(itemValue)
-                                            }
-                                        >
-                                            {
-                                                this.state.targetLanguages.map((item, index) => {
-                                                    return (<Picker.Item label={item} value={item} key={index} />)
-                                                })
-                                            }
-                                        </Picker>
-                                    </View>
+                                    {
+                                        this.state.targets.map((target, index) => {
+                                            return (
+                                                <View key={index} style={{ flexDirection: 'row' }}>
+                                                    <Picker
+                                                        selectedValue={target.target}
+                                                        style={styles.languagesPicker}
+                                                        onValueChange={(itemValue) =>
+                                                            this.selectLanguageTarget(itemValue, index)
+                                                        }
+                                                    >
+                                                        {
+                                                            this.state.targetLanguages.map((item, indexTargets) => {
+                                                                return (<Picker.Item label={item} value={item} key={indexTargets} />)
+                                                            })
+                                                        }
+                                                    </Picker>
+                                                </View>
+                                            )
+                                        })
+                                    }
 
                                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                         <TouchableOpacity
@@ -250,8 +284,8 @@ class MainList extends Component {
                                                 this.changeConfirmMenuVisibility(true);
                                             }}
                                         >
-                                            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                                                <Icon name="clear" size={20} color="red" light/>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Icon name="clear" size={20} color="red" light />
                                                 <Text style={{ color: 'red', fontSize: 20, marginLeft: 10 }}>DELETE GROUP</Text>
                                             </View>
                                         </TouchableOpacity>

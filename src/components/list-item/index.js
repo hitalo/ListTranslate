@@ -12,9 +12,11 @@ class ListItem extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { item: this.props.item, 
-            translations: Object.assign([], this.props.item.translations), 
-            isModalVisible: false };
+        this.state = {
+            item: this.props.item,
+            translations: Object.assign([], this.props.item.translations),
+            isModalVisible: false
+        };
     }
 
     saveItem(item) {
@@ -24,7 +26,7 @@ class ListItem extends Component {
     }
 
     saveTranslation(index) {
-        if(this.state.item.text) {
+        if (this.state.item.text) {
             Db.open().saveTranslation(this.state.item.id, this.state.item.translations[index]);
         }
     }
@@ -33,13 +35,13 @@ class ListItem extends Component {
         this.props.deleteItem(id);
     }
 
-    async translate(item) {
+    async translate(item, index) {
         var translater = new TanslatorWatson();
-        var result = await translater.translate({ text: item, model: this.props.config.model });
-        
-        this.state.item.translations[0].text = result.translations[0].translation;
+        var result = await translater.translate({ text: item, model: this.props.config.targets[index].model });
+
+        this.state.item.translations[index].text = result.translations[0].translation;
         this.setState({ translations: Object.assign([], this.state.item.translations) });
-        this.saveTranslation(0); //meanwhile each item only have the pos0 tranlation
+        this.saveTranslation(index);
     }
 
     updateTranslation = (index, newText) => {
@@ -92,7 +94,7 @@ class ListItem extends Component {
                     </TouchableOpacity>
                 </View>
 
-                <Text style={styles.languageID}>{ this.props.config.src }</Text>
+                <Text style={styles.languageID}>{this.props.config.src}</Text>
                 <Input
                     style={styles.inputContainer}
                     multiline={true}
@@ -102,34 +104,36 @@ class ListItem extends Component {
                     value={this.state.item.text}
                 />
 
-                <View style={{ flexDirection: 'row', flex: 1 }}>
-                    <Text style={styles.languageID}>{ this.props.config.target }</Text>
-                    <TouchableOpacity
-                        style={{ marginTop: 10 }}
-                        onPress={() => {
-                            this.translate(this.state.item.text);
-                        }}
-                    >
-                        <Icon
-                            name="translate"
-                            size={20}
-                            color="blue"
-                        />
-                    </TouchableOpacity>
-                </View>
+
 
                 {
                     this.state.translations && this.state.translations.map((translation, index) => {
                         return (
-                            <Input
-                                key={index}
-                                style={styles.inputContainer}
-                                multiline={true}
-                                placeholder="Translation"
-                                onChangeText={(newText) => this.updateTranslation(index, newText)}
-                                onBlur={() => { this.saveTranslation(index) }}
-                                value={translation.text}
-                            />)
+                            <View key={index}>
+                                <View style={{ flexDirection: 'row', flex: 1 }}>
+                                    <Text style={styles.languageID}>{this.props.config.targets[index].target}</Text>
+                                    <TouchableOpacity
+                                        style={{ marginTop: 10 }}
+                                        onPress={() => {
+                                            this.translate(this.state.item.text, index);
+                                        }}
+                                    >
+                                        <Icon
+                                            name="translate"
+                                            size={20}
+                                            color="blue"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <Input
+                                    style={styles.inputContainer}
+                                    multiline={true}
+                                    placeholder="Translation"
+                                    onChangeText={(newText) => this.updateTranslation(index, newText)}
+                                    onBlur={() => { this.saveTranslation(index) }}
+                                    value={translation.text}
+                                />
+                            </View>)
                     })
                 }
 
