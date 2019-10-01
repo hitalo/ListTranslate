@@ -14,7 +14,7 @@ class ListItem extends Component {
         super(props);
         this.state = {
             item: this.props.item,
-            translations: Object.assign([], this.props.item.translations),
+            // translations: Object.assign([], this.props.item.translations),
             isModalVisible: false
         };
     }
@@ -63,6 +63,7 @@ class ListItem extends Component {
     }
 
     render() {
+        let translations = Object.assign([], this.props.item.translations);
         return (
 
             <View style={styles.container}>
@@ -107,7 +108,7 @@ class ListItem extends Component {
 
 
                 {
-                    this.state.translations && this.state.translations.map((translation, index) => {
+                    translations && translations.map((translation, index) => {
                         return (
                             <View key={index}>
                                 <View style={{ flexDirection: 'row', flex: 1 }}>

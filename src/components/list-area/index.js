@@ -20,9 +20,9 @@ class MainList extends Component {
             itens: this.itens,
             isMenuVisible: false,
             isConfirmMenuVisible: false,
-            config: { id: '', src: 'English', targets: [{ id: '', target: 'German', model: 'en-de' }, { id: '', target: 'Spanish', model: 'en-es' }] },
+            config: { id: '', src: 'English', targets: [{ id: '', target: 'Spanish', model: 'en-es' }] },
             src: 'English',
-            targets: [{ target: 'German', model: 'en-de' }, { target: 'Spanish', model: 'en-es' }],
+            targets: [{ target: 'Spanish', model: 'en-es' }],
             languages: [],
             targetLanguages: []
         };
@@ -98,14 +98,7 @@ class MainList extends Component {
     changeMenuVisibility = (isMenuVisible) => {
 
         if (isMenuVisible) {
-            let targets = this.state.targets;
-            this.state.config.targets.map((target, index) => {
-                if (targets[index]) {
-                    targets[index].target = target.target;
-                    targets[index].model = target.model;
-                }
-            });
-            this.setState({ targets });
+            this.setState({ targets: this.state.config.targets });
         }
 
         this.setState({ isMenuVisible });
@@ -182,6 +175,23 @@ class MainList extends Component {
                 targets.push(item.target);
         });
         this.setState({ languages: languages, targetLanguages: targets });
+    }
+
+    addNewTarget() {
+        let allTargets = modals.list.filter(item => {
+            return item.src === this.state.src;
+        });
+        let newTarget = {target: allTargets[0].target, model: allTargets[0].model};
+        let targets = this.state.targets;
+        targets.push(newTarget);
+
+        let itens = this.state.itens;
+        itens.map(item => {
+            item.translations = Object.assign([], item.translations);
+            item.translations.push({ id: uuid.v4(), text: "" });
+        });
+        Db.open().saveAllItens(itens);
+        this.setState({ targets, itens });
     }
 
     deleteGroup = async (isOkSelected) => {
@@ -263,6 +273,17 @@ class MainList extends Component {
                                             )
                                         })
                                     }
+
+                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                        <TouchableOpacity
+                                            style={styles.newTarget}
+                                            onPress={() => {
+                                                this.addNewTarget();
+                                            }}
+                                        >
+                                            <Icon name="add" size={30} color="#ccc" />
+                                        </TouchableOpacity>
+                                    </View>
 
                                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                         <TouchableOpacity
@@ -352,6 +373,18 @@ const styles = StyleSheet.create({
         maxWidth: 300,
         padding: 10,
         borderRadius: 10,
+    },
+    newTarget: {
+        fontSize: 24,
+        height: 30,
+        marginTop: 20,
+        marginBottom: 20,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 80,
+        borderWidth: 1,
+        borderColor: '#ccc'
     },
     menuOkButton: {
         flex: 0.5,

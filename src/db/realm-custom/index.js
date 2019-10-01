@@ -69,6 +69,25 @@ export class RealmDB {
 
     }
 
+    saveAllItens(itens) {
+
+        Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
+            realm.write(() => {
+
+                itens.map(item => {
+                    let newItem = realm.create('Itens', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
+                    const translations = Object.assign([], item.translations);
+                    translations.forEach(translation => {
+                        newItem.translations.push(realm.create('Translations', translation, true));
+                    });
+                });
+            });
+
+            realm.close();
+        }).catch(e => { console.error("save all itens error open ", e); });
+
+    }
+
 
     getItens(group_id) {
 
@@ -164,7 +183,6 @@ export class RealmDB {
 
     saveConfig(config) {
         
-        console.log(config);
         Realm.open({ schema: [ConfigsSchema, ConfigTargetSchema] }).then(realm => {
             realm.write(() => {
                 config.id = (config.id || uuid.v4());
