@@ -34,19 +34,29 @@ class MainList extends Component {
         this.getConfigs();
         this.getItens();
         this.props.navigation.setParams({ changeMenuVisibility: this.changeMenuVisibility });
+        this.props.navigation.setParams({ changeConfirmMenuVisibility: this.changeConfirmMenuVisibility });
     }
 
     static navigationOptions = ({ navigation }) => {
         return {
             title: navigation.getParam('group').name,
             headerRight: (
-                <TouchableOpacity
-                    onPress={() => {
-                        navigation.getParam('changeMenuVisibility')(true);
-                    }}
-                >
-                    <Icon name="more-vert" size={30} color="white" />
-                </TouchableOpacity>
+                <View style={{flexDirection: 'row'}}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.getParam('changeConfirmMenuVisibility')(true);
+                        }}
+                    >
+                        <Icon name="delete" size={30} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.getParam('changeMenuVisibility')(true);
+                        }}
+                    >
+                        <Icon name="more-vert" size={30} color="white" />
+                    </TouchableOpacity>
+                </View>
             ),
         }
     };
@@ -122,7 +132,7 @@ class MainList extends Component {
     }
 
     changeConfirmRemoveTargetVisibility = (isConfirmRemoveTargetVisibility, targetToDelete) => {
-        this.targetToDelete = (isConfirmRemoveTargetVisibility && targetToDelete) ? targetToDelete : undefined;
+        this.targetToDelete = (isConfirmRemoveTargetVisibility && targetToDelete != undefined) ? targetToDelete : undefined;
         this.setState({ isConfirmRemoveTargetVisibility });
     }
 
@@ -161,7 +171,6 @@ class MainList extends Component {
         let config = { ...this.state.config }
         config.src = this.state.src;
 
-        // const itens = await Db.open().getItens(this.props.navigation.getParam('group').id);
         let itens = this.state.itens;
         let saveItens = false;
 
@@ -180,10 +189,9 @@ class MainList extends Component {
             }
         });
 
-        if(saveItens) { await Db.open().saveAllItens(itens); }
+        if (saveItens) { await Db.open().saveAllItens(itens); }
 
         config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
-        console.log(itens);
         this.setState({ config, itens }, () => {
             Db.open().saveConfig(config);
             this.changeMenuVisibility(false)
@@ -191,12 +199,10 @@ class MainList extends Component {
     }
 
     deleteItem = async (id) => {
-        const deleted = await Db.open().deleteItem(id);
-        if (deleted) {
-            let itens = this.state.itens;
-            itens = itens.filter(i => { return i.id !== id });
-            this.setState({ itens });
-        }
+        await Db.open().deleteItem(id);
+        let itens = this.state.itens;
+        itens = itens.filter(i => { return i.id !== id });
+        this.setState({ itens });
     }
 
     getLanguages() {
@@ -227,6 +233,13 @@ class MainList extends Component {
         if (isOkSelected && this.targetToDelete != undefined) {
             let config = { ...this.state.config }
             let targets = config.targets;
+
+            if(targets.length < 2) { 
+                console.log('Need at least one target');
+                this.changeConfirmRemoveTargetVisibility(false);
+                return;
+            }
+
             targets.splice(this.targetToDelete, 1);
             config.targets = targets;
 
@@ -236,6 +249,7 @@ class MainList extends Component {
                 item.translations.splice(this.targetToDelete, 1);
             });
             await Db.open().saveAllItens(itens);
+            config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
             await Db.open().saveConfig(config);
 
             this.setState({ targets, config, itens });
@@ -367,7 +381,7 @@ class MainList extends Component {
                                         </TouchableOpacity>
                                     </View>
 
-                                    <Divider style={{ backgroundColor: 'black' }} />
+                                    {/* <Divider style={{ backgroundColor: 'black' }} />
 
                                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                         <TouchableOpacity
@@ -381,7 +395,7 @@ class MainList extends Component {
                                                 <Text style={{ color: 'red', fontSize: 20, marginLeft: 10 }}>DELETE GROUP</Text>
                                             </View>
                                         </TouchableOpacity>
-                                    </View>
+                                    </View> */}
                                 </View>
                             </View>
 
@@ -393,7 +407,7 @@ class MainList extends Component {
                                     return (
                                         <Card key={item.id} containerStyle={{ padding: 0 }}>
                                             <Fragment>
-                                                <ListItem config={this.state.config} item={item} deleteItem={this.deleteItem} updateItem={this.updateItem}/>
+                                                <ListItem config={this.state.config} item={item} deleteItem={this.deleteItem} updateItem={this.updateItem} />
                                             </Fragment>
                                         </Card>
                                     );

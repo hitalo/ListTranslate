@@ -190,7 +190,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         flexDirection: "row",
         justifyContent: 'flex-end',
-        marginTop: -25
+        marginTop: -25,
+        marginRight: -1
     },
 })
 

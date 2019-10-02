@@ -75,11 +75,13 @@ export class RealmDB {
             realm.write(() => {
 
                 itens.map(item => {
-                    let newItem = realm.create('Itens', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
-                    const translations = Object.assign([], item.translations);
-                    translations.forEach(translation => {
-                        newItem.translations.push(realm.create('Translations', translation, true));
-                    });
+                    if (item.text.trim()) {
+                        let newItem = realm.create('Itens', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
+                        const translations = Object.assign([], item.translations);
+                        translations.forEach(translation => {
+                            newItem.translations.push(realm.create('Translations', translation, true));
+                        });
+                    }
                 });
             });
 

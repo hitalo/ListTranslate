@@ -78,6 +78,7 @@ class GroupArea extends Component {
                                         placeholder='Group Name'
                                         onChangeText={(name) => this.setState({ 'newGroupName': name })}
                                         value={this.state.newGroupName}
+                                        maxLength={30}
                                     />
                                 </View>
                                 <View style={styles.buttonsView}>
