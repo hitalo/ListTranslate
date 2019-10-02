@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { StyleSheet, View, TouchableOpacity, Modal, Picker, Text, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Modal, Picker, Text, ScrollView, TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
 import { Card, Divider } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -19,9 +19,11 @@ class MainList extends Component {
         super(props);
         this.state = {
             itens: this.itens,
+            groupName: this.props.navigation.getParam('group').name,
             isMenuVisible: false,
             isConfirmMenuVisible: false,
             isConfirmRemoveTargetVisibility: false,
+            isEditGroupModalVisible: false,
             config: { id: '', src: 'English', targets: [{ id: '', target: 'Spanish', model: 'en-es' }] },
             src: 'English',
             targets: [{ target: 'Spanish', model: 'en-es' }],
@@ -35,13 +37,21 @@ class MainList extends Component {
         this.getItens();
         this.props.navigation.setParams({ changeMenuVisibility: this.changeMenuVisibility });
         this.props.navigation.setParams({ changeConfirmMenuVisibility: this.changeConfirmMenuVisibility });
+        this.props.navigation.setParams({ changeEditGroupVisibility: this.changeEditGroupVisibility });
     }
 
     static navigationOptions = ({ navigation }) => {
         return {
             title: navigation.getParam('group').name,
             headerRight: (
-                <View style={{flexDirection: 'row'}}>
+                <View style={{ flexDirection: 'row' }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.getParam('changeEditGroupVisibility')(true);
+                        }}
+                    >
+                        <Icon name="edit" size={30} color="white" />
+                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
                             navigation.getParam('changeConfirmMenuVisibility')(true);
@@ -134,6 +144,13 @@ class MainList extends Component {
     changeConfirmRemoveTargetVisibility = (isConfirmRemoveTargetVisibility, targetToDelete) => {
         this.targetToDelete = (isConfirmRemoveTargetVisibility && targetToDelete != undefined) ? targetToDelete : undefined;
         this.setState({ isConfirmRemoveTargetVisibility });
+    }
+
+    changeEditGroupVisibility = (isVisible) => {
+        if(isVisible) {
+            this.setState({groupName: this.props.navigation.getParam('group').name});
+        }
+        this.setState({ isEditGroupModalVisible: isVisible });
     }
 
     selectLanguage(selectedLanguage) {
@@ -234,7 +251,7 @@ class MainList extends Component {
             let config = { ...this.state.config }
             let targets = config.targets;
 
-            if(targets.length < 2) { 
+            if (targets.length < 2) {
                 console.log('Need at least one target');
                 this.changeConfirmRemoveTargetVisibility(false);
                 return;
@@ -270,6 +287,16 @@ class MainList extends Component {
         this.changeConfirmMenuVisibility(false);
     }
 
+    async responseEditGroup(isOk) {
+        if(isOk && this.state.groupName.trim()) {
+            const group = {id: this.props.navigation.getParam('group').id, name: this.state.groupName.trim()};
+            await Db.open().saveGroup(group);
+            this.props.navigation.setParams({ group });
+            this.props.navigation.state.params.updateGroups();
+        }
+        this.setState({ isEditGroupModalVisible: false });
+    }
+
     render() {
         return (
             <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#3e74f0', '#799df2', '#d5e1fb']} style={styles.linearGradient}>
@@ -277,6 +304,38 @@ class MainList extends Component {
                     contentInsetAdjustmentBehavior="automatic"
                     style={styles.scrollView}>
                     <View style={styles.container}>
+
+                        <Modal
+                            style={{ flex: 1 }}
+                            visible={this.state.isEditGroupModalVisible}
+                            transparent={true}
+                            onRequestClose={() => this.changeEditGroupVisibility(false)}>
+
+                            <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+                                <View style={styles.editGroupModal}>
+                                    <View style={styles.titleView}>
+                                        <Text style={styles.titleText}>Group</Text>
+                                    </View>
+                                    <View style={styles.bodyView}>
+                                        <TextInput
+                                            style={styles.inputGroupName}
+                                            placeholder='Group Name'
+                                            onChangeText={(name) => this.setState({ 'groupName': name })}
+                                            value={this.state.groupName}
+                                            maxLength={30}
+                                        />
+                                    </View>
+                                    <View style={styles.buttonsView}>
+                                        <TouchableOpacity onPress={() => this.responseEditGroup(false)} style={[styles.buttons, styles.cancelButton]}>
+                                            <Text style={styles.buttonsText}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => this.responseEditGroup(true)} style={[styles.buttons, styles.okButton]}>
+                                            <Text style={styles.buttonsText}>Ok</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
 
                         <Modal
                             style={{ flex: 1 }}
@@ -493,6 +552,58 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingLeft: 15,
         paddingRight: 15,
+    },
+    editGroupModal: {
+        backgroundColor: 'white',
+        flex: 1,
+        flexDirection: 'column',
+        maxWidth: 300,
+        borderRadius: 10,
+    },
+    titleView: {
+        paddingTop: 20,
+        paddingBottom: 20,
+        paddingLeft: 10,
+        paddingRight: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    titleText: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    bodyView: {
+        paddingTop: 20,
+        paddingBottom: 20,
+        paddingLeft: 10,
+        paddingRight: 10,
+    },
+    inputGroupName: {
+        fontSize: 20
+    },
+    buttonsView: {
+        // flex: 1,
+        backgroundColor: '#ddd',
+        flexDirection: 'row',
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+    },
+    buttons: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 10,
+        borderRadius: 20
+    },
+    buttonsText: {
+        color: 'white',
+        fontSize: 25
+    },
+    cancelButton: {
+        backgroundColor: 'red',
+    },
+    okButton: {
+        backgroundColor: 'green',
     }
 })
 
