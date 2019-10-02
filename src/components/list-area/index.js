@@ -13,6 +13,7 @@ import ConfirmModal from '../../modals/confirm-modal';
 class MainList extends Component {
 
     itens = [{}];
+    targetToDelete = undefined;
 
     constructor(props) {
         super(props);
@@ -20,6 +21,7 @@ class MainList extends Component {
             itens: this.itens,
             isMenuVisible: false,
             isConfirmMenuVisible: false,
+            isConfirmRemoveTargetVisibility: false,
             config: { id: '', src: 'English', targets: [{ id: '', target: 'Spanish', model: 'en-es' }] },
             src: 'English',
             targets: [{ target: 'Spanish', model: 'en-es' }],
@@ -91,6 +93,13 @@ class MainList extends Component {
         this.getItens();
     }
 
+    updateItem = (item) => {
+        let itens = this.state.itens;
+        let itemIndex = itens.findIndex((i => i.id === item.id));
+        itens[itemIndex] = item;
+        this.setState({ itens });
+    }
+
     getItemByModal(model) {
         return modals.list.filter(item => { return item.model === model })[0];
     }
@@ -98,7 +107,11 @@ class MainList extends Component {
     changeMenuVisibility = (isMenuVisible) => {
 
         if (isMenuVisible) {
-            this.setState({ targets: this.state.config.targets });
+            let targets = [];
+            this.state.config.targets.map((target, index) => {
+                targets[index] = { target: target.target, model: target.model };
+            });
+            this.setState({ targets });
         }
 
         this.setState({ isMenuVisible });
@@ -106,6 +119,11 @@ class MainList extends Component {
 
     changeConfirmMenuVisibility = (isConfirmMenuVisible) => {
         this.setState({ isConfirmMenuVisible });
+    }
+
+    changeConfirmRemoveTargetVisibility = (isConfirmRemoveTargetVisibility, targetToDelete) => {
+        this.targetToDelete = (isConfirmRemoveTargetVisibility && targetToDelete) ? targetToDelete : undefined;
+        this.setState({ isConfirmRemoveTargetVisibility });
     }
 
     selectLanguage(selectedLanguage) {
@@ -138,18 +156,35 @@ class MainList extends Component {
         this.setState({ targets });
     }
 
-    saveModel() {
+    async saveModel() {
 
         let config = { ...this.state.config }
         config.src = this.state.src;
+
+        // const itens = await Db.open().getItens(this.props.navigation.getParam('group').id);
+        let itens = this.state.itens;
+        let saveItens = false;
+
         this.state.targets.map((target, index) => {
-            if (config.targets[index]) {
+            if (!config.targets[index]) {
+                config.targets[index] = target;
+
+                saveItens = true;
+                itens.map(item => {
+                    item.translations = Object.assign([], item.translations);
+                    item.translations.push({ id: uuid.v4(), text: "" });
+                });
+            } else {
                 config.targets[index].target = target.target;
                 config.targets[index].model = target.model;
             }
         });
+
+        if(saveItens) { await Db.open().saveAllItens(itens); }
+
         config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
-        this.setState({ config }, () => {
+        console.log(itens);
+        this.setState({ config, itens }, () => {
             Db.open().saveConfig(config);
             this.changeMenuVisibility(false)
         });
@@ -181,17 +216,32 @@ class MainList extends Component {
         let allTargets = modals.list.filter(item => {
             return item.src === this.state.src;
         });
-        let newTarget = {target: allTargets[0].target, model: allTargets[0].model};
+        let newTarget = { target: allTargets[0].target, model: allTargets[0].model };
         let targets = this.state.targets;
         targets.push(newTarget);
 
-        let itens = this.state.itens;
-        itens.map(item => {
-            item.translations = Object.assign([], item.translations);
-            item.translations.push({ id: uuid.v4(), text: "" });
-        });
-        Db.open().saveAllItens(itens);
-        this.setState({ targets, itens });
+        this.setState({ targets });
+    }
+
+    removeTarget = async (isOkSelected) => {
+        if (isOkSelected && this.targetToDelete != undefined) {
+            let config = { ...this.state.config }
+            let targets = config.targets;
+            targets.splice(this.targetToDelete, 1);
+            config.targets = targets;
+
+            let itens = this.state.itens;
+            itens.map(item => {
+                item.translations = Object.assign([], item.translations);
+                item.translations.splice(this.targetToDelete, 1);
+            });
+            await Db.open().saveAllItens(itens);
+            await Db.open().saveConfig(config);
+
+            this.setState({ targets, config, itens });
+        }
+
+        this.changeConfirmRemoveTargetVisibility(false);
     }
 
     deleteGroup = async (isOkSelected) => {
@@ -227,6 +277,17 @@ class MainList extends Component {
 
                         <Modal
                             style={{ flex: 1 }}
+                            visible={this.state.isConfirmRemoveTargetVisibility}
+                            transparent={true}
+                            onRequestClose={() => this.changeConfirmRemoveTargetVisibility(false)}>
+                            <ConfirmModal
+                                text="Delete this item?"
+                                title="Confirm delete"
+                                okClick={this.removeTarget} />
+                        </Modal>
+
+                        <Modal
+                            style={{ flex: 1 }}
                             visible={this.state.isMenuVisible}
                             transparent={true}
                             onRequestClose={() => this.changeMenuVisibility(false)}>
@@ -256,6 +317,16 @@ class MainList extends Component {
                                         this.state.targets.map((target, index) => {
                                             return (
                                                 <View key={index} style={{ flexDirection: 'row' }}>
+                                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                                        <TouchableOpacity
+                                                            style={{ marginRight: 10 }}
+                                                            onPress={() => {
+                                                                this.changeConfirmRemoveTargetVisibility(true, index);
+                                                            }}
+                                                        >
+                                                            <Icon name="remove" size={20} color="#ccc" />
+                                                        </TouchableOpacity>
+                                                    </View>
                                                     <Picker
                                                         selectedValue={target.target}
                                                         style={styles.languagesPicker}
@@ -322,7 +393,7 @@ class MainList extends Component {
                                     return (
                                         <Card key={item.id} containerStyle={{ padding: 0 }}>
                                             <Fragment>
-                                                <ListItem config={this.state.config} item={item} deleteItem={this.deleteItem} />
+                                                <ListItem config={this.state.config} item={item} deleteItem={this.deleteItem} updateItem={this.updateItem}/>
                                             </Fragment>
                                         </Card>
                                     );

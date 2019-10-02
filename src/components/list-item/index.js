@@ -22,12 +22,14 @@ class ListItem extends Component {
     saveItem(item) {
         if (item.text) {
             Db.open().saveItem(item);
+            this.props.updateItem(item);
         }
     }
 
     saveTranslation(index) {
         if (this.state.item.text) {
             Db.open().saveTranslation(this.state.item.id, this.state.item.translations[index]);
+            this.props.updateItem(this.state.item);
         }
     }
 
@@ -36,12 +38,18 @@ class ListItem extends Component {
     }
 
     async translate(item, index) {
-        var translater = new TanslatorWatson();
-        var result = await translater.translate({ text: item, model: this.props.config.targets[index].model });
 
-        this.state.item.translations[index].text = result.translations[0].translation;
-        this.setState({ translations: Object.assign([], this.state.item.translations) });
-        this.saveTranslation(index);
+        this.setState({ item: this.props.item }, async () => {
+
+            if (item && this.state.item.translations[index]) {
+                var translater = new TanslatorWatson();
+                var result = await translater.translate({ text: item, model: this.props.config.targets[index].model });
+
+                this.state.item.translations[index].text = result.translations[0].translation;
+                this.setState({ translations: Object.assign([], this.state.item.translations) });
+                this.saveTranslation(index);
+            }
+        });
     }
 
     updateTranslation = (index, newText) => {
