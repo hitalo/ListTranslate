@@ -343,7 +343,7 @@ class MainList extends Component {
                             transparent={true}
                             onRequestClose={() => this.changeConfirmMenuVisibility(false)}>
                             <ConfirmModal
-                                text="Delete this group?"
+                                text="Delete this list?"
                                 title="Confirm delete"
                                 okClick={this.deleteGroup} />
                         </Modal>
