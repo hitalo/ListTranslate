@@ -31,7 +31,7 @@ class GroupArea extends Component {
                         navigation.getParam('changeNewGroupVisibility')(true);
                     }}
                 >
-                    <Text style={{ color: '#fff' }}>New Group</Text>
+                    <Text style={{ color: '#fff' }}>New List</Text>
                 </TouchableOpacity>
             ),
         }
@@ -70,12 +70,12 @@ class GroupArea extends Component {
                         <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
                             <View style={styles.newGroupModal}>
                                 <View style={styles.titleView}>
-                                    <Text style={styles.titleText}>New Group</Text>
+                                    <Text style={styles.titleText}>New List</Text>
                                 </View>
                                 <View style={styles.bodyView}>
                                     <TextInput
                                         style={styles.inputGroupName}
-                                        placeholder='Group Name'
+                                        placeholder='List Name'
                                         onChangeText={(name) => this.setState({ 'newGroupName': name })}
                                         value={this.state.newGroupName}
                                         maxLength={30}
@@ -86,7 +86,7 @@ class GroupArea extends Component {
                                         <Text style={styles.buttonsText}>Cancel</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => this.responseNewGroup(true)} style={[styles.buttons, styles.okButton]}>
-                                        <Text style={styles.buttonsText}>Ok</Text>
+                                        <Text style={styles.buttonsText}>OK</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>

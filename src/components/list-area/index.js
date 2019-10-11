@@ -314,12 +314,12 @@ class MainList extends Component {
                             <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
                                 <View style={styles.editGroupModal}>
                                     <View style={styles.titleView}>
-                                        <Text style={styles.titleText}>Group</Text>
+                                        <Text style={styles.titleText}>List</Text>
                                     </View>
                                     <View style={styles.bodyView}>
                                         <TextInput
                                             style={styles.inputGroupName}
-                                            placeholder='Group Name'
+                                            placeholder='List Name'
                                             onChangeText={(name) => this.setState({ 'groupName': name })}
                                             value={this.state.groupName}
                                             maxLength={30}
@@ -330,7 +330,7 @@ class MainList extends Component {
                                             <Text style={styles.buttonsText}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => this.responseEditGroup(true)} style={[styles.buttons, styles.okButton]}>
-                                            <Text style={styles.buttonsText}>Ok</Text>
+                                            <Text style={styles.buttonsText}>OK</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
