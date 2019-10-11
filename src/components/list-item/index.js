@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { Db } from '../../db';
 import ConfirmModal from '../../modals/confirm-modal';
+import MsgModal from '../../modals/msg-modal';
 import TanslatorWatson from '../../translator/watson';
 
 
@@ -15,7 +16,8 @@ class ListItem extends Component {
         this.state = {
             item: this.props.item,
             // translations: Object.assign([], this.props.item.translations),
-            isModalVisible: false,
+            isConfirmModalVisible: false,
+            isMsgModalVisible: false,
             activity: []
         };
     }
@@ -63,7 +65,7 @@ class ListItem extends Component {
                     this.setState({ translations: Object.assign([], this.state.item.translations) });
                     this.saveTranslation(index);
                 } catch (error) {
-                    console.log("Network access?");
+                    this.changeMsgModalVisibility(true);
                 }
             }
             activity[index] = false;
@@ -82,11 +84,19 @@ class ListItem extends Component {
             this.deleteItem(this.props.item.id);
         }
 
-        this.setState({ isModalVisible: false });
+        this.setState({ isConfirmModalVisible: false });
     }
 
-    changeModalVisibility = (isModalVisible) => {
-        this.setState({ isModalVisible });
+    okMsgClick = () => {
+        this.setState({ isMsgModalVisible: false });
+    }
+
+    changeConfirmModalVisibility = (isConfirmModalVisible) => {
+        this.setState({ isConfirmModalVisible });
+    }
+
+    changeMsgModalVisibility = (isMsgModalVisible) => {
+        this.setState({ isMsgModalVisible });
     }
 
     render() {
@@ -97,9 +107,9 @@ class ListItem extends Component {
             <View style={styles.container}>
 
                 <Modal
-                    visible={this.state.isModalVisible}
+                    visible={this.state.isConfirmModalVisible}
                     transparent={true}
-                    onRequestClose={() => this.changeModalVisibility(false)}>
+                    onRequestClose={() => this.changeConfirmModalVisibility(false)}>
 
                     <ConfirmModal
                         text="Delete this item?"
@@ -107,11 +117,22 @@ class ListItem extends Component {
                         okClick={this.okClick} />
                 </Modal>
 
+                <Modal
+                    visible={this.state.isMsgModalVisible}
+                    transparent={true}
+                    onRequestClose={() => this.changeMsgModalVisibility(false)}>
+
+                    <MsgModal
+                        title="Can't translate"
+                        text="Maybe you are having a network problem"
+                        okClick={this.okMsgClick} />
+                </Modal>
+
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity
                         style={styles.deleteButton}
                         onPress={() => {
-                            this.changeModalVisibility(true);
+                            this.changeConfirmModalVisibility(true);
                         }}
                     >
                         <Icon

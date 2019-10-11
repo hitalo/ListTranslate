@@ -3,15 +3,15 @@ import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight } from 're
 import { Divider } from 'react-native-elements';
 import { bold } from 'ansi-colors';
 
-class ConfirmModal extends Component {
+class MsgModal extends Component {
 
     constructor(props) {
         super(props);
         this.state = { isModalVisible: false };
     }
 
-    okClick = (okClicked) => {
-        this.props.okClick(okClicked);
+    okClick = () => {
+        this.props.okClick();
     }
 
     render() {
@@ -27,10 +27,7 @@ class ConfirmModal extends Component {
                     </View>
                     <Divider style={{ backgroundColor: 'black' }} />
                     <View style={styles.buttonsView}>
-                        <TouchableHighlight onPress={() => this.okClick(false)} style={[styles.buttons, styles.cancelButton]}>
-                            <Text style={styles.buttonsText}>Cancel</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={() => this.okClick(true)} style={[styles.buttons, styles.okButton]}>
+                        <TouchableHighlight onPress={() => this.okClick()} style={[styles.buttons, styles.okButton]}>
                             <Text style={styles.buttonsText}>OK</Text>
                         </TouchableHighlight>
                     </View>
@@ -92,9 +89,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     buttons: {
-        flex: 1,
+        // flex: 1,
+        width: 150,
         justifyContent: 'center',
         alignItems: 'center',
         margin: 10,
@@ -104,12 +104,9 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 25
     },
-    cancelButton: {
-        backgroundColor: 'red',
-    },
     okButton: {
         backgroundColor: 'green',
     }
 });
 
-export default ConfirmModal;
+export default MsgModal;
