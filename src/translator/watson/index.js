@@ -30,7 +30,7 @@ class TanslatorWatson {
 
       // })
       .catch((error) => {
-        console.error(error);
+        console.log('Translate error: ', error);
       });
   }
 

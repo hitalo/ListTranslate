@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -15,8 +15,18 @@ class ListItem extends Component {
         this.state = {
             item: this.props.item,
             // translations: Object.assign([], this.props.item.translations),
-            isModalVisible: false
+            isModalVisible: false,
+            activity: []
         };
+    }
+
+    componentDidMount() {
+        let translations = Object.assign([], this.props.item.translations);
+        let activity = [];
+        translations.map((_, index) => {
+            activity.push(false);
+        });
+        this.setState({ activity });
     }
 
     saveItem(item) {
@@ -39,16 +49,25 @@ class ListItem extends Component {
 
     async translate(item, index) {
 
-        this.setState({ item: this.props.item }, async () => {
+        let activity = this.state.activity;
+        activity[index] = true;
+
+        this.setState({ item: this.props.item, activity }, async () => {
 
             if (item && this.state.item.translations[index]) {
                 var translater = new TanslatorWatson();
-                var result = await translater.translate({ text: item, model: this.props.config.targets[index].model });
 
-                this.state.item.translations[index].text = result.translations[0].translation;
-                this.setState({ translations: Object.assign([], this.state.item.translations) });
-                this.saveTranslation(index);
+                try {
+                    var result = await translater.translate({ text: item, model: this.props.config.targets[index].model });
+                    this.state.item.translations[index].text = result.translations[0].translation;
+                    this.setState({ translations: Object.assign([], this.state.item.translations) });
+                    this.saveTranslation(index);
+                } catch (error) {
+                    console.log("Network access?");
+                }
             }
+            activity[index] = false;
+            this.setState(activity);
         });
     }
 
@@ -72,6 +91,7 @@ class ListItem extends Component {
 
     render() {
         let translations = Object.assign([], this.props.item.translations);
+        const activity = this.state.activity;
         return (
 
             <View style={styles.container}>
@@ -121,6 +141,14 @@ class ListItem extends Component {
                             <View key={index}>
                                 <View style={{ flexDirection: 'row', flex: 1 }}>
                                     <Text style={styles.languageID}>{this.props.config.targets[index].target}</Text>
+                                    {
+                                        //While there's a bug with animating
+                                        activity[index] && <ActivityIndicator
+                                            animating={true}
+                                            style={{ marginTop: 10, marginRight: 10 }}
+                                            size="small"
+                                            color="#0000ff" />
+                                    }
                                     <TouchableOpacity
                                         style={{ marginTop: 10 }}
                                         onPress={() => {
