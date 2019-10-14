@@ -102,7 +102,7 @@ class MainList extends Component {
                 config.group_id = c.group_id;
                 config.src = c.src;
                 config.targets = Object.assign([], c.targets);
-                this.setState({ config }, () => this.getLanguages());
+                this.setState({ config, src: config.src }, () => this.getLanguages());
             });
         } else {
             this.getLanguages();
