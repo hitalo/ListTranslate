@@ -152,6 +152,8 @@ class ListItem extends Component {
                     onChangeText={(text) => this.setState({ 'item': { ...this.state.item, 'text': text } })}
                     onBlur={() => { this.saveItem(this.state.item) }}
                     value={this.state.item.text}
+                    autoCorrect={false}
+                    autoCapitalize="none"
                 />
 
 
@@ -190,6 +192,8 @@ class ListItem extends Component {
                                     onChangeText={(newText) => this.updateTranslation(index, newText)}
                                     onBlur={() => { this.saveTranslation(index) }}
                                     value={translation.text}
+                                    autoCorrect={false}
+                                    autoCapitalize="none"
                                 />
                             </View>)
                     })

@@ -323,6 +323,8 @@ class MainList extends Component {
                                             onChangeText={(name) => this.setState({ 'groupName': name })}
                                             value={this.state.groupName}
                                             maxLength={30}
+                                            autoCorrect={false}
+                                            autoCapitalize="none"
                                         />
                                     </View>
                                     <View style={styles.buttonsView}>
