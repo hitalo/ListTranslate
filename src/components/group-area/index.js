@@ -5,13 +5,14 @@ import uuid from 'react-native-uuid';
 
 import { Db } from '../../db';
 import InputModal from '../../modals/input-modal';
+import MsgModal from '../../modals/msg-modal';
 
 
 class GroupArea extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { newGroupModalVisibility: false, newGroupName: '', groups: [] }
+        this.state = { newGroupModalVisibility: false, isMsgModalVisible: false, newGroupName: '', groups: [] }
     }
 
     componentDidMount() {
@@ -45,13 +46,26 @@ class GroupArea extends Component {
 
     responseNewGroup = (isOk, newGroupName) => {
         if (isOk && newGroupName.trim()) {
-            const group = { id: uuid.v4(), name: newGroupName.trim() };
-            Db.open().saveGroup(group);
-            var groups = Array.from(this.state.groups);
-            groups.push(group);
-            this.setState({ groups });
+            let result = this.state.groups.filter(group => group.name == newGroupName);
+            if (result.length === 0) {
+                const group = { id: uuid.v4(), name: newGroupName.trim() };
+                Db.open().saveGroup(group);
+                var groups = Array.from(this.state.groups);
+                groups.push(group);
+                this.setState({ groups });
+            } else {
+                this.changeMsgModalVisibility(true);
+            }
         }
         this.setState({ newGroupModalVisibility: false });
+    }
+
+    okMsgClick = () => {
+        this.changeMsgModalVisibility(false);
+    }
+
+    changeMsgModalVisibility = (isMsgModalVisible) => {
+        this.setState({ isMsgModalVisible });
     }
 
     render() {
@@ -61,6 +75,18 @@ class GroupArea extends Component {
                 <ScrollView
                     contentInsetAdjustmentBehavior="automatic"
                     style={styles.scrollView}>
+
+                    <Modal
+                        visible={this.state.isMsgModalVisible}
+                        transparent={true}
+                        onRequestClose={() => this.changeMsgModalVisibility(false)}>
+
+                        <MsgModal
+                            title="Sorry"
+                            text="A list with this name already exists!"
+                            okClick={this.okMsgClick}
+                            outside={this.changeMsgModalVisibility} />
+                    </Modal>
 
                     <Modal
                         style={{ flex: 1 }}
