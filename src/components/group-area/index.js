@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import uuid from 'react-native-uuid';
 
 import { Db } from '../../db';
+import InputModal from '../../modals/input-modal';
 
 
 class GroupArea extends Component {
@@ -42,15 +43,15 @@ class GroupArea extends Component {
         this.setState({ groups });
     }
 
-    responseNewGroup(isOk) {
-        if (isOk && this.state.newGroupName.trim()) {
-            const group = { id: uuid.v4(), name: this.state.newGroupName.trim() };
+    responseNewGroup = (isOk, newGroupName) => {
+        if (isOk && newGroupName.trim()) {
+            const group = { id: uuid.v4(), name: newGroupName.trim() };
             Db.open().saveGroup(group);
             var groups = Array.from(this.state.groups);
             groups.push(group);
             this.setState({ groups });
         }
-        this.setState({ newGroupModalVisibility: false, newGroupName: "" });
+        this.setState({ newGroupModalVisibility: false });
     }
 
     render() {
@@ -66,38 +67,11 @@ class GroupArea extends Component {
                         visible={this.state.newGroupModalVisibility}
                         transparent={true}
                         onRequestClose={() => this.changeNewGroupVisibility(false)}>
-
-                        <TouchableOpacity
-                            style={{ flex: 1 }}
-                            onPress={() => this.changeNewGroupVisibility(false)}>
-
-                            <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-                                <TouchableWithoutFeedback>
-                                    <View style={styles.newGroupModal}>
-                                        <View style={styles.titleView}>
-                                            <Text style={styles.titleText}>New List</Text>
-                                        </View>
-                                        <View style={styles.bodyView}>
-                                            <TextInput
-                                                style={styles.inputGroupName}
-                                                placeholder='List Name'
-                                                onChangeText={(name) => this.setState({ 'newGroupName': name })}
-                                                value={this.state.newGroupName}
-                                                maxLength={30}
-                                            />
-                                        </View>
-                                        <View style={styles.buttonsView}>
-                                            <TouchableOpacity onPress={() => this.responseNewGroup(false)} style={[styles.buttons, styles.cancelButton]}>
-                                                <Text style={styles.buttonsText}>Cancel</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => this.responseNewGroup(true)} style={[styles.buttons, styles.okButton]}>
-                                                <Text style={styles.buttonsText}>OK</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                </TouchableWithoutFeedback>
-                            </View>
-                        </TouchableOpacity>
+                        <InputModal
+                            placeholder="List Name"
+                            title="New List"
+                            okClick={this.responseNewGroup}
+                            outside={this.changeNewGroupVisibility} />
                     </Modal>
 
 
@@ -177,9 +151,6 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         paddingLeft: 10,
         paddingRight: 10,
-    },
-    inputGroupName: {
-        fontSize: 20
     },
     buttonsView: {
         // flex: 1,

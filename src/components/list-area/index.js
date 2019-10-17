@@ -9,6 +9,7 @@ import ListItem from '../list-item';
 import { Db } from '../../db';
 import modals from '../../translator/watson/models'
 import ConfirmModal from '../../modals/confirm-modal';
+import InputModal from '../../modals/input-modal';
 
 class MainList extends Component {
 
@@ -287,9 +288,9 @@ class MainList extends Component {
         this.changeConfirmMenuVisibility(false);
     }
 
-    async responseEditGroup(isOk) {
-        if (isOk && this.state.groupName.trim()) {
-            const group = { id: this.props.navigation.getParam('group').id, name: this.state.groupName.trim() };
+    responseEditGroup = async (isOk, groupName) => {
+        if (isOk && groupName.trim()) {
+            const group = { id: this.props.navigation.getParam('group').id, name: groupName.trim() };
             await Db.open().saveGroup(group);
             this.props.navigation.setParams({ group });
             this.props.navigation.state.params.updateGroups();
@@ -310,40 +311,12 @@ class MainList extends Component {
                             visible={this.state.isEditGroupModalVisible}
                             transparent={true}
                             onRequestClose={() => this.changeEditGroupVisibility(false)}>
-
-                            <TouchableWithoutFeedback
-                                style={{ flex: 1 }}
-                                onPress={() => this.changeEditGroupVisibility(false)}>
-
-                                <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-                                    <TouchableWithoutFeedback>
-                                        <View style={styles.editGroupModal}>
-                                            <View style={styles.titleView}>
-                                                <Text style={styles.titleText}>List</Text>
-                                            </View>
-                                            <View style={styles.bodyView}>
-                                                <TextInput
-                                                    style={styles.inputGroupName}
-                                                    placeholder='List Name'
-                                                    onChangeText={(name) => this.setState({ 'groupName': name })}
-                                                    value={this.state.groupName}
-                                                    maxLength={30}
-                                                    autoCorrect={false}
-                                                    autoCapitalize="none"
-                                                />
-                                            </View>
-                                            <View style={styles.buttonsView}>
-                                                <TouchableOpacity onPress={() => this.responseEditGroup(false)} style={[styles.buttons, styles.cancelButton]}>
-                                                    <Text style={styles.buttonsText}>Cancel</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => this.responseEditGroup(true)} style={[styles.buttons, styles.okButton]}>
-                                                    <Text style={styles.buttonsText}>OK</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    </TouchableWithoutFeedback>
-                                </View>
-                            </TouchableWithoutFeedback>
+                            <InputModal
+                                placeholder="List Name"
+                                title="List"
+                                text={this.state.groupName}
+                                okClick={this.responseEditGroup}
+                                outside={this.changeEditGroupVisibility} />
                         </Modal>
 
                         <Modal
