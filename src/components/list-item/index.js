@@ -114,7 +114,8 @@ class ListItem extends Component {
                     <ConfirmModal
                         text="Delete this item?"
                         title="Confirm delete"
-                        okClick={this.okClick} />
+                        okClick={this.okClick} 
+                        outside={this.changeConfirmModalVisibility}/>
                 </Modal>
 
                 <Modal
@@ -125,7 +126,8 @@ class ListItem extends Component {
                     <MsgModal
                         title="Can't translate"
                         text="Maybe you are having a network problem"
-                        okClick={this.okMsgClick} />
+                        okClick={this.okMsgClick} 
+                        outside={this.changeMsgModalVisibility}/>
                 </Modal>
 
                 <View style={styles.iconsContainer}>

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { StyleSheet, View, TouchableOpacity, Modal, Picker, Text, ScrollView, TextInput } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Modal, Picker, Text, ScrollView, TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
 import { Card, Divider } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -147,8 +147,8 @@ class MainList extends Component {
     }
 
     changeEditGroupVisibility = (isVisible) => {
-        if(isVisible) {
-            this.setState({groupName: this.props.navigation.getParam('group').name});
+        if (isVisible) {
+            this.setState({ groupName: this.props.navigation.getParam('group').name });
         }
         this.setState({ isEditGroupModalVisible: isVisible });
     }
@@ -288,8 +288,8 @@ class MainList extends Component {
     }
 
     async responseEditGroup(isOk) {
-        if(isOk && this.state.groupName.trim()) {
-            const group = {id: this.props.navigation.getParam('group').id, name: this.state.groupName.trim()};
+        if (isOk && this.state.groupName.trim()) {
+            const group = { id: this.props.navigation.getParam('group').id, name: this.state.groupName.trim() };
             await Db.open().saveGroup(group);
             this.props.navigation.setParams({ group });
             this.props.navigation.state.params.updateGroups();
@@ -311,32 +311,39 @@ class MainList extends Component {
                             transparent={true}
                             onRequestClose={() => this.changeEditGroupVisibility(false)}>
 
-                            <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={styles.editGroupModal}>
-                                    <View style={styles.titleView}>
-                                        <Text style={styles.titleText}>List</Text>
-                                    </View>
-                                    <View style={styles.bodyView}>
-                                        <TextInput
-                                            style={styles.inputGroupName}
-                                            placeholder='List Name'
-                                            onChangeText={(name) => this.setState({ 'groupName': name })}
-                                            value={this.state.groupName}
-                                            maxLength={30}
-                                            autoCorrect={false}
-                                            autoCapitalize="none"
-                                        />
-                                    </View>
-                                    <View style={styles.buttonsView}>
-                                        <TouchableOpacity onPress={() => this.responseEditGroup(false)} style={[styles.buttons, styles.cancelButton]}>
-                                            <Text style={styles.buttonsText}>Cancel</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => this.responseEditGroup(true)} style={[styles.buttons, styles.okButton]}>
-                                            <Text style={styles.buttonsText}>OK</Text>
-                                        </TouchableOpacity>
-                                    </View>
+                            <TouchableWithoutFeedback
+                                style={{ flex: 1 }}
+                                onPress={() => this.changeEditGroupVisibility(false)}>
+
+                                <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+                                    <TouchableWithoutFeedback>
+                                        <View style={styles.editGroupModal}>
+                                            <View style={styles.titleView}>
+                                                <Text style={styles.titleText}>List</Text>
+                                            </View>
+                                            <View style={styles.bodyView}>
+                                                <TextInput
+                                                    style={styles.inputGroupName}
+                                                    placeholder='List Name'
+                                                    onChangeText={(name) => this.setState({ 'groupName': name })}
+                                                    value={this.state.groupName}
+                                                    maxLength={30}
+                                                    autoCorrect={false}
+                                                    autoCapitalize="none"
+                                                />
+                                            </View>
+                                            <View style={styles.buttonsView}>
+                                                <TouchableOpacity onPress={() => this.responseEditGroup(false)} style={[styles.buttons, styles.cancelButton]}>
+                                                    <Text style={styles.buttonsText}>Cancel</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => this.responseEditGroup(true)} style={[styles.buttons, styles.okButton]}>
+                                                    <Text style={styles.buttonsText}>OK</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    </TouchableWithoutFeedback>
                                 </View>
-                            </View>
+                            </TouchableWithoutFeedback>
                         </Modal>
 
                         <Modal
@@ -347,7 +354,8 @@ class MainList extends Component {
                             <ConfirmModal
                                 text="Delete this list?"
                                 title="Confirm delete"
-                                okClick={this.deleteGroup} />
+                                okClick={this.deleteGroup}
+                                outside={this.changeConfirmMenuVisibility} />
                         </Modal>
 
                         <Modal
@@ -358,7 +366,8 @@ class MainList extends Component {
                             <ConfirmModal
                                 text="Delete this item?"
                                 title="Confirm delete"
-                                okClick={this.removeTarget} />
+                                okClick={this.removeTarget}
+                                outside={this.changeConfirmRemoveTargetVisibility} />
                         </Modal>
 
                         <Modal
@@ -367,82 +376,87 @@ class MainList extends Component {
                             transparent={true}
                             onRequestClose={() => this.changeMenuVisibility(false)}>
 
-                            <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={styles.menuView}>
-                                    <Text style={{ fontSize: 20, marginBottom: 10 }}>Languages</Text>
-                                    <Text style={{ fontSize: 15 }}>From</Text>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Picker
-                                            selectedValue={this.state.src}
-                                            style={styles.languagesPicker}
-                                            onValueChange={(itemValue, itemIndex) =>
-                                                this.selectLanguage(itemValue)
-                                            }
-                                        >
+                            <TouchableWithoutFeedback
+                                style={{ flex: 1 }}
+                                onPress={() => this.changeMenuVisibility(false)}>
 
+                                <View style={{ flexDirection: 'row', flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+                                    <TouchableWithoutFeedback>
+                                        <View style={styles.menuView}>
+                                            <Text style={{ fontSize: 20, marginBottom: 10 }}>Languages</Text>
+                                            <Text style={{ fontSize: 15 }}>From</Text>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <Picker
+                                                    selectedValue={this.state.src}
+                                                    style={styles.languagesPicker}
+                                                    onValueChange={(itemValue, itemIndex) =>
+                                                        this.selectLanguage(itemValue)
+                                                    }
+                                                >
+
+                                                    {
+                                                        this.state.languages.map((language, index) => {
+                                                            return (<Picker.Item label={language} value={language} key={index} />)
+                                                        })
+                                                    }
+                                                </Picker>
+                                            </View>
+                                            <Text style={{ fontSize: 15 }}>To</Text>
                                             {
-                                                this.state.languages.map((language, index) => {
-                                                    return (<Picker.Item label={language} value={language} key={index} />)
+                                                this.state.targets.map((target, index) => {
+                                                    return (
+                                                        <View key={index} style={{ flexDirection: 'row' }}>
+                                                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                                                <TouchableOpacity
+                                                                    style={{ marginRight: 10 }}
+                                                                    onPress={() => {
+                                                                        this.changeConfirmRemoveTargetVisibility(true, index);
+                                                                    }}
+                                                                >
+                                                                    <Icon name="remove" size={20} color="#ccc" />
+                                                                </TouchableOpacity>
+                                                            </View>
+                                                            <Picker
+                                                                selectedValue={target.target}
+                                                                style={styles.languagesPicker}
+                                                                onValueChange={(itemValue) =>
+                                                                    this.selectLanguageTarget(itemValue, index)
+                                                                }
+                                                            >
+                                                                {
+                                                                    this.state.targetLanguages.map((item, indexTargets) => {
+                                                                        return (<Picker.Item label={item} value={item} key={indexTargets} />)
+                                                                    })
+                                                                }
+                                                            </Picker>
+                                                        </View>
+                                                    )
                                                 })
                                             }
-                                        </Picker>
-                                    </View>
-                                    <Text style={{ fontSize: 15 }}>To</Text>
-                                    {
-                                        this.state.targets.map((target, index) => {
-                                            return (
-                                                <View key={index} style={{ flexDirection: 'row' }}>
-                                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                                        <TouchableOpacity
-                                                            style={{ marginRight: 10 }}
-                                                            onPress={() => {
-                                                                this.changeConfirmRemoveTargetVisibility(true, index);
-                                                            }}
-                                                        >
-                                                            <Icon name="remove" size={20} color="#ccc" />
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    <Picker
-                                                        selectedValue={target.target}
-                                                        style={styles.languagesPicker}
-                                                        onValueChange={(itemValue) =>
-                                                            this.selectLanguageTarget(itemValue, index)
-                                                        }
-                                                    >
-                                                        {
-                                                            this.state.targetLanguages.map((item, indexTargets) => {
-                                                                return (<Picker.Item label={item} value={item} key={indexTargets} />)
-                                                            })
-                                                        }
-                                                    </Picker>
-                                                </View>
-                                            )
-                                        })
-                                    }
 
-                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <TouchableOpacity
-                                            style={styles.newTarget}
-                                            onPress={() => {
-                                                this.addNewTarget();
-                                            }}
-                                        >
-                                            <Icon name="add" size={30} color="#ccc" />
-                                        </TouchableOpacity>
-                                    </View>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                <TouchableOpacity
+                                                    style={styles.newTarget}
+                                                    onPress={() => {
+                                                        this.addNewTarget();
+                                                    }}
+                                                >
+                                                    <Icon name="add" size={30} color="#ccc" />
+                                                </TouchableOpacity>
+                                            </View>
 
-                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <TouchableOpacity
-                                            style={styles.menuOkButton}
-                                            onPress={() => {
-                                                this.saveModel();
-                                            }}
-                                        >
-                                            <Text style={{ color: 'white', fontSize: 20 }}>OK</Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                <TouchableOpacity
+                                                    style={styles.menuOkButton}
+                                                    onPress={() => {
+                                                        this.saveModel();
+                                                    }}
+                                                >
+                                                    <Text style={{ color: 'white', fontSize: 20 }}>OK</Text>
+                                                </TouchableOpacity>
+                                            </View>
 
-                                    {/* <Divider style={{ backgroundColor: 'black' }} />
+                                            {/* <Divider style={{ backgroundColor: 'black' }} />
 
                                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                         <TouchableOpacity
@@ -457,8 +471,10 @@ class MainList extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View> */}
+                                        </View>
+                                    </TouchableWithoutFeedback>
                                 </View>
-                            </View>
+                            </TouchableWithoutFeedback>
 
                         </Modal>
 

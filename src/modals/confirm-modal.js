@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight, TouchableWithoutFeedback } from 'react-native';
 import { Divider } from 'react-native-elements';
-import { bold } from 'ansi-colors';
 
 class ConfirmModal extends Component {
 
@@ -16,26 +15,33 @@ class ConfirmModal extends Component {
 
     render() {
         return (
-            <View style={styles.content}>
-                <TouchableOpacity activeOpacity={1} disabled={true} style={styles.opacity}>
-                    <View style={styles.titleView}>
-                        <Text style={styles.titleText}>{this.props.title || "Boo!"}</Text>
-                    </View>
-                    <Divider style={{ backgroundColor: 'black' }} />
-                    <View style={styles.bodyView}>
-                        <Text style={styles.bodyText}>{this.props.text || "Hi there"}</Text>
-                    </View>
-                    <Divider style={{ backgroundColor: 'black' }} />
-                    <View style={styles.buttonsView}>
-                        <TouchableHighlight onPress={() => this.okClick(false)} style={[styles.buttons, styles.cancelButton]}>
-                            <Text style={styles.buttonsText}>Cancel</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={() => this.okClick(true)} style={[styles.buttons, styles.okButton]}>
-                            <Text style={styles.buttonsText}>OK</Text>
-                        </TouchableHighlight>
-                    </View>
-                </TouchableOpacity>
-            </View>
+            <TouchableWithoutFeedback
+                style={{ flex: 1 }}
+                onPress={() => this.props.outside(false)}>
+                    
+                <View style={styles.content}>
+                    <TouchableWithoutFeedback>
+                        <View style={styles.opacity}>
+                            <View style={styles.titleView}>
+                                <Text style={styles.titleText}>{this.props.title || "Boo!"}</Text>
+                            </View>
+                            <Divider style={{ backgroundColor: 'black' }} />
+                            <View style={styles.bodyView}>
+                                <Text style={styles.bodyText}>{this.props.text || "Hi there"}</Text>
+                            </View>
+                            <Divider style={{ backgroundColor: 'black' }} />
+                            <View style={styles.buttonsView}>
+                                <TouchableHighlight onPress={() => this.okClick(false)} style={[styles.buttons, styles.cancelButton]}>
+                                    <Text style={styles.buttonsText}>Cancel</Text>
+                                </TouchableHighlight>
+                                <TouchableHighlight onPress={() => this.okClick(true)} style={[styles.buttons, styles.okButton]}>
+                                    <Text style={styles.buttonsText}>OK</Text>
+                                </TouchableHighlight>
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </View>
+            </TouchableWithoutFeedback>
         );
     }
 }
