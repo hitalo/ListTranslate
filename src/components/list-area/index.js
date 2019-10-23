@@ -160,6 +160,7 @@ class MainList extends Component {
         allLanguages.list.map(language => {
             allTargets.push({ target: language, model: this.getModel(selectedLanguage, language) });
         });
+        allTargets = allTargets.filter(target => target.target !== selectedLanguage);
 
         let targets = this.state.targets;
         targets.map(target => {
