@@ -114,8 +114,8 @@ class ListItem extends Component {
                     <ConfirmModal
                         text="Delete this item?"
                         title="Confirm delete"
-                        okClick={this.okClick} 
-                        outside={this.changeConfirmModalVisibility}/>
+                        okClick={this.okClick}
+                        outside={this.changeConfirmModalVisibility} />
                 </Modal>
 
                 <Modal
@@ -126,8 +126,8 @@ class ListItem extends Component {
                     <MsgModal
                         title="Can't translate"
                         text="Maybe you are having a network problem"
-                        okClick={this.okMsgClick} 
-                        outside={this.changeMsgModalVisibility}/>
+                        okClick={this.okMsgClick}
+                        outside={this.changeMsgModalVisibility} />
                 </Modal>
 
                 <View style={styles.iconsContainer}>
@@ -174,18 +174,20 @@ class ListItem extends Component {
                                             size="small"
                                             color="#0000ff" />
                                     }
-                                    <TouchableOpacity
-                                        style={{ marginTop: 10 }}
-                                        onPress={() => {
-                                            this.translate(this.state.item.text, index);
-                                        }}
-                                    >
-                                        <Icon
-                                            name="translate"
-                                            size={20}
-                                            color="blue"
-                                        />
-                                    </TouchableOpacity>
+                                    {
+                                        this.props.config.targets[index].model.trim() !== "" && <TouchableOpacity
+                                            style={{ marginTop: 10 }}
+                                            onPress={() => {
+                                                this.translate(this.state.item.text, index);
+                                            }}
+                                        >
+                                            <Icon
+                                                name="translate"
+                                                size={20}
+                                                color="blue"
+                                            />
+                                        </TouchableOpacity>
+                                    }
                                 </View>
                                 <Input
                                     style={styles.inputContainer}

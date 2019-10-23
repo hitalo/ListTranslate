@@ -158,7 +158,7 @@ class MainList extends Component {
     selectLanguage(selectedLanguage) {
         let allTargets = [];
         allLanguages.list.map(language => {
-            allTargets.push({target: language, model: this.getModel(selectedLanguage, language)});
+            allTargets.push({ target: language, model: this.getModel(selectedLanguage, language) });
         });
 
         let targets = this.state.targets;
@@ -178,7 +178,7 @@ class MainList extends Component {
     }
 
     getModel(src, target) {
-        let list = modals.list.filter(item => { 
+        let list = modals.list.filter(item => {
             return item.src === src && item.target === target;
         });
         return list[0] ? list[0].model : '';
@@ -389,7 +389,8 @@ class MainList extends Component {
                                                             >
                                                                 {
                                                                     this.state.targetLanguages.map((item, indexTargets) => {
-                                                                        return (<Picker.Item label={item.target} value={item.target} key={indexTargets} />)
+                                                                        return item.model ? (<Picker.Item color={'blue'} label={item.target} value={item.target} key={indexTargets} />) :
+                                                                            (<Picker.Item color={'black'} label={item.target} value={item.target} key={indexTargets} />)
                                                                     })
                                                                 }
                                                             </Picker>
