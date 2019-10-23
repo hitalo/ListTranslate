@@ -10,6 +10,7 @@ import { Db } from '../../db';
 import modals from '../../translator/watson/models'
 import ConfirmModal from '../../modals/confirm-modal';
 import InputModal from '../../modals/input-modal';
+import allLanguages from '../../languages-list';
 
 class MainList extends Component {
 
@@ -155,33 +156,32 @@ class MainList extends Component {
     }
 
     selectLanguage(selectedLanguage) {
-        allTargets = [];
-        modals.list.map(item => {
-            if (item.src === selectedLanguage)
-                allTargets.push(item.target);
+        let allTargets = [];
+        allLanguages.list.map(language => {
+            allTargets.push({target: language, model: this.getModel(selectedLanguage, language)});
         });
-        src = selectedLanguage;
 
         let targets = this.state.targets;
-        let itens = modals.list.filter(item => {
-            return item.src === selectedLanguage && item.target === allTargets[0]
-        });
         targets.map(target => {
-            target.target = allTargets[0];
-            target.model = itens[0].model;
+            target.target = allTargets[0].target;
+            target.model = allTargets[0].model;
         });
-        this.setState({ src, targets }, () => this.setState({ targetLanguages: allTargets }));
+
+        this.setState({ src: selectedLanguage, targets }, () => this.setState({ targetLanguages: allTargets }));
     }
 
     selectLanguageTarget(newTarget, index) {
-
-        let itens = modals.list.filter(item => {
-            return item.src === this.state.src && item.target === newTarget
-        });
         let targets = this.state.targets;
         targets[index].target = newTarget;
-        targets[index].model = itens[0].model;
+        targets[index].model = this.getModel(this.state.src, newTarget);
         this.setState({ targets });
+    }
+
+    getModel(src, target) {
+        let list = modals.list.filter(item => { 
+            return item.src === src && item.target === target;
+        });
+        return list[0] ? list[0].model : '';
     }
 
     async saveModel() {
@@ -224,16 +224,7 @@ class MainList extends Component {
     }
 
     getLanguages() {
-        languages = [];
-        targets = [];
-        modals.list.map(item => {
-            if (!languages.includes(item.src))
-                languages.push(item.src);
-
-            if (item.src === this.state.config.src)
-                targets.push(item.target);
-        });
-        this.setState({ languages: languages, targetLanguages: targets });
+        this.setState({ languages: allLanguages.list }, () => this.selectLanguage(this.state.src));
     }
 
     addNewTarget() {
@@ -398,7 +389,7 @@ class MainList extends Component {
                                                             >
                                                                 {
                                                                     this.state.targetLanguages.map((item, indexTargets) => {
-                                                                        return (<Picker.Item label={item} value={item} key={indexTargets} />)
+                                                                        return (<Picker.Item label={item.target} value={item.target} key={indexTargets} />)
                                                                     })
                                                                 }
                                                             </Picker>
