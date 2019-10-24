@@ -7,15 +7,16 @@ import LinearGradient from 'react-native-linear-gradient';
 
 import ListItem from '../list-item';
 import { Db } from '../../db';
-import modals from '../../translator/watson/models'
+import { Utils } from '../../utils';
+import modals from '../../translator/watson/models';
 import ConfirmModal from '../../modals/confirm-modal';
 import InputModal from '../../modals/input-modal';
-import allLanguages from '../../languages-list';
 
 class MainList extends Component {
 
     itens = [{}];
     targetToDelete = undefined;
+    allLanguages = {};
 
     constructor(props) {
         super(props);
@@ -35,6 +36,7 @@ class MainList extends Component {
     }
 
     componentDidMount() {
+        this.allLanguages = Utils.getLanguages();
         this.getConfigs();
         this.getItens();
         this.props.navigation.setParams({ changeMenuVisibility: this.changeMenuVisibility });
@@ -157,7 +159,7 @@ class MainList extends Component {
 
     selectLanguage(selectedLanguage) {
         let allTargets = [];
-        allLanguages.list.map(language => {
+        this.allLanguages.list.map(language => {
             allTargets.push({ target: language, model: this.getModel(selectedLanguage, language) });
         });
         allTargets = allTargets.filter(target => target.target !== selectedLanguage);
@@ -225,7 +227,7 @@ class MainList extends Component {
     }
 
     getLanguages() {
-        this.setState({ languages: allLanguages.list }, () => this.selectLanguage(this.state.src));
+        this.setState({ languages: this.allLanguages.list }, () => this.selectLanguage(this.state.src));
     }
 
     addNewTarget() {
