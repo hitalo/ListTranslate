@@ -633,290 +633,300 @@ exports[`renders correctly 1`] = `
           transparent={true}
           visible={false}
         >
-          <View
-            accessible={true}
-            clickable={true}
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
+          <RCTScrollView
+            contentContainerStyle={
               Object {
-                "alignItems": "center",
-                "backgroundColor": "rgba(0,0,0,0.5)",
-                "flex": 1,
-                "flexDirection": "row",
-                "justifyContent": "center",
+                "flexGrow": 1,
               }
             }
           >
-            <View
-              accessible={true}
-              clickable={false}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                Object {
-                  "backgroundColor": "white",
-                  "borderRadius": 10,
-                  "flex": 1,
-                  "flexDirection": "column",
-                  "maxWidth": 300,
-                  "padding": 10,
-                }
-              }
-            >
-              <Text
-                style={
-                  Object {
-                    "fontSize": 20,
-                    "marginBottom": 10,
-                  }
-                }
-              >
-                Languages
-              </Text>
-              <Text
-                style={
-                  Object {
-                    "fontSize": 15,
-                  }
-                }
-              >
-                From
-              </Text>
+            <View>
               <View
+                accessible={true}
+                clickable={true}
+                onClick={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   Object {
+                    "alignItems": "center",
+                    "backgroundColor": "rgba(0,0,0,0.5)",
+                    "flex": 1,
                     "flexDirection": "row",
+                    "justifyContent": "center",
                   }
                 }
               >
                 <View
+                  accessible={true}
+                  clickable={false}
+                  onClick={[Function]}
+                  onResponderGrant={[Function]}
+                  onResponderMove={[Function]}
+                  onResponderRelease={[Function]}
+                  onResponderTerminate={[Function]}
+                  onResponderTerminationRequest={[Function]}
+                  onStartShouldSetResponder={[Function]}
                   style={
                     Object {
+                      "backgroundColor": "white",
+                      "borderRadius": 10,
                       "flex": 1,
+                      "flexDirection": "column",
+                      "maxWidth": 300,
+                      "padding": 10,
                     }
                   }
                 >
-                  <RCTPicker
-                    items={Array []}
-                    onChange={[Function]}
-                    onResponderTerminationRequest={[Function]}
-                    onStartShouldSetResponder={[Function]}
-                    selectedIndex={0}
-                    style={
-                      Array [
-                        Object {
-                          "height": 216,
-                        },
-                        undefined,
-                      ]
-                    }
-                  />
-                </View>
-              </View>
-              <Text
-                style={
-                  Object {
-                    "fontSize": 15,
-                  }
-                }
-              >
-                To
-              </Text>
-              <View
-                style={
-                  Object {
-                    "flexDirection": "row",
-                  }
-                }
-              >
-                <View
-                  style={
-                    Object {
-                      "alignItems": "center",
-                      "justifyContent": "center",
-                    }
-                  }
-                >
-                  <View
-                    accessible={true}
-                    clickable={true}
-                    isTVSelectable={true}
-                    onClick={[Function]}
-                    onResponderGrant={[Function]}
-                    onResponderMove={[Function]}
-                    onResponderRelease={[Function]}
-                    onResponderTerminate={[Function]}
-                    onResponderTerminationRequest={[Function]}
-                    onStartShouldSetResponder={[Function]}
+                  <Text
                     style={
                       Object {
-                        "marginRight": 10,
-                        "opacity": 1,
+                        "fontSize": 20,
+                        "marginBottom": 10,
                       }
                     }
                   >
-                    <Text
-                      allowFontScaling={false}
+                    Languages
+                  </Text>
+                  <Text
+                    style={
+                      Object {
+                        "fontSize": 15,
+                      }
+                    }
+                  >
+                    From
+                  </Text>
+                  <View
+                    style={
+                      Object {
+                        "flexDirection": "row",
+                      }
+                    }
+                  >
+                    <View
                       style={
-                        Array [
-                          Object {
-                            "color": "#ccc",
-                            "fontSize": 20,
-                          },
-                          undefined,
-                          Object {
-                            "fontFamily": "Material Icons",
-                            "fontStyle": "normal",
-                            "fontWeight": "normal",
-                          },
-                          Object {},
-                        ]
+                        Object {
+                          "flex": 1,
+                        }
                       }
                     >
-                      
-                    </Text>
+                      <RCTPicker
+                        items={Array []}
+                        onChange={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        selectedIndex={0}
+                        style={
+                          Array [
+                            Object {
+                              "height": 216,
+                            },
+                            undefined,
+                          ]
+                        }
+                      />
+                    </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <RCTPicker
-                    items={Array []}
-                    onChange={[Function]}
-                    onResponderTerminationRequest={[Function]}
-                    onStartShouldSetResponder={[Function]}
-                    selectedIndex={0}
-                    style={
-                      Array [
-                        Object {
-                          "height": 216,
-                        },
-                        undefined,
-                      ]
-                    }
-                  />
-                </View>
-              </View>
-              <View
-                style={
-                  Object {
-                    "alignItems": "center",
-                    "flexDirection": "row",
-                    "justifyContent": "center",
-                  }
-                }
-              >
-                <View
-                  accessible={true}
-                  clickable={true}
-                  isTVSelectable={true}
-                  onClick={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  style={
-                    Object {
-                      "alignItems": "center",
-                      "backgroundColor": "white",
-                      "borderColor": "#ccc",
-                      "borderRadius": 80,
-                      "borderWidth": 1,
-                      "fontSize": 24,
-                      "height": 30,
-                      "justifyContent": "center",
-                      "marginBottom": 20,
-                      "marginTop": 20,
-                      "opacity": 1,
-                    }
-                  }
-                >
-                  <Text
-                    allowFontScaling={false}
-                    style={
-                      Array [
-                        Object {
-                          "color": "#ccc",
-                          "fontSize": 30,
-                        },
-                        undefined,
-                        Object {
-                          "fontFamily": "Material Icons",
-                          "fontStyle": "normal",
-                          "fontWeight": "normal",
-                        },
-                        Object {},
-                      ]
-                    }
-                  >
-                    
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={
-                  Object {
-                    "alignItems": "center",
-                    "flexDirection": "row",
-                    "justifyContent": "center",
-                  }
-                }
-              >
-                <View
-                  accessible={true}
-                  clickable={true}
-                  isTVSelectable={true}
-                  onClick={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  style={
-                    Object {
-                      "alignItems": "center",
-                      "backgroundColor": "green",
-                      "borderRadius": 20,
-                      "flex": 0.5,
-                      "justifyContent": "center",
-                      "marginBottom": 20,
-                      "marginTop": 20,
-                      "opacity": 1,
-                    }
-                  }
-                >
                   <Text
                     style={
                       Object {
-                        "color": "white",
-                        "fontSize": 20,
+                        "fontSize": 15,
                       }
                     }
                   >
-                    OK
+                    To
                   </Text>
+                  <View
+                    style={
+                      Object {
+                        "flexDirection": "row",
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        Object {
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                        }
+                      }
+                    >
+                      <View
+                        accessible={true}
+                        clickable={true}
+                        isTVSelectable={true}
+                        onClick={[Function]}
+                        onResponderGrant={[Function]}
+                        onResponderMove={[Function]}
+                        onResponderRelease={[Function]}
+                        onResponderTerminate={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        style={
+                          Object {
+                            "marginRight": 10,
+                            "opacity": 1,
+                          }
+                        }
+                      >
+                        <Text
+                          allowFontScaling={false}
+                          style={
+                            Array [
+                              Object {
+                                "color": "#ccc",
+                                "fontSize": 20,
+                              },
+                              undefined,
+                              Object {
+                                "fontFamily": "Material Icons",
+                                "fontStyle": "normal",
+                                "fontWeight": "normal",
+                              },
+                              Object {},
+                            ]
+                          }
+                        >
+                          
+                        </Text>
+                      </View>
+                    </View>
+                    <View
+                      style={
+                        Object {
+                          "flex": 1,
+                        }
+                      }
+                    >
+                      <RCTPicker
+                        items={Array []}
+                        onChange={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        selectedIndex={0}
+                        style={
+                          Array [
+                            Object {
+                              "height": 216,
+                            },
+                            undefined,
+                          ]
+                        }
+                      />
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      Object {
+                        "alignItems": "center",
+                        "flexDirection": "row",
+                        "justifyContent": "center",
+                      }
+                    }
+                  >
+                    <View
+                      accessible={true}
+                      clickable={true}
+                      isTVSelectable={true}
+                      onClick={[Function]}
+                      onResponderGrant={[Function]}
+                      onResponderMove={[Function]}
+                      onResponderRelease={[Function]}
+                      onResponderTerminate={[Function]}
+                      onResponderTerminationRequest={[Function]}
+                      onStartShouldSetResponder={[Function]}
+                      style={
+                        Object {
+                          "alignItems": "center",
+                          "backgroundColor": "white",
+                          "borderColor": "#ccc",
+                          "borderRadius": 80,
+                          "borderWidth": 1,
+                          "fontSize": 24,
+                          "height": 30,
+                          "justifyContent": "center",
+                          "marginBottom": 20,
+                          "marginTop": 20,
+                          "opacity": 1,
+                        }
+                      }
+                    >
+                      <Text
+                        allowFontScaling={false}
+                        style={
+                          Array [
+                            Object {
+                              "color": "#ccc",
+                              "fontSize": 30,
+                            },
+                            undefined,
+                            Object {
+                              "fontFamily": "Material Icons",
+                              "fontStyle": "normal",
+                              "fontWeight": "normal",
+                            },
+                            Object {},
+                          ]
+                        }
+                      >
+                        
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      Object {
+                        "alignItems": "center",
+                        "flexDirection": "row",
+                        "justifyContent": "center",
+                      }
+                    }
+                  >
+                    <View
+                      accessible={true}
+                      clickable={true}
+                      isTVSelectable={true}
+                      onClick={[Function]}
+                      onResponderGrant={[Function]}
+                      onResponderMove={[Function]}
+                      onResponderRelease={[Function]}
+                      onResponderTerminate={[Function]}
+                      onResponderTerminationRequest={[Function]}
+                      onStartShouldSetResponder={[Function]}
+                      style={
+                        Object {
+                          "alignItems": "center",
+                          "backgroundColor": "green",
+                          "borderRadius": 20,
+                          "flex": 0.5,
+                          "justifyContent": "center",
+                          "marginBottom": 20,
+                          "marginTop": 20,
+                          "opacity": 1,
+                        }
+                      }
+                    >
+                      <Text
+                        style={
+                          Object {
+                            "color": "white",
+                            "fontSize": 20,
+                          }
+                        }
+                      >
+                        OK
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
+          </RCTScrollView>
         </Modal>
         <View
           style={
