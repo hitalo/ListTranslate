@@ -172,6 +172,8 @@ class MainList extends Component {
         let isSearchVisible = !this.state.isSearchVisible;
         if (!isSearchVisible) {
             this.updateSearch("");
+        } else {
+            this.refs._scrollView.scrollTo({ y: 0 });
         }
         this.setState({ isSearchVisible });
     }
@@ -330,6 +332,7 @@ class MainList extends Component {
         return (
             <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#3e74f0', '#799df2', '#d5e1fb']} style={styles.linearGradient}>
                 <ScrollView
+                    ref='_scrollView'
                     contentInsetAdjustmentBehavior="automatic"
                     style={styles.scrollView}>
                     <View style={styles.container}>
