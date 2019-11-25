@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Modal, Picker, Text, ScrollView, TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
-import { Card, Divider } from 'react-native-elements';
+import { Card, Divider, SearchBar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -22,16 +22,19 @@ class MainList extends Component {
         super(props);
         this.state = {
             itens: this.itens,
+            allItems: this.itens,
             groupName: this.props.navigation.getParam('group').name,
             isMenuVisible: false,
             isConfirmMenuVisible: false,
             isConfirmRemoveTargetVisibility: false,
             isEditGroupModalVisible: false,
+            isSearchVisible: false,
             config: { id: '', src: 'English', targets: [{ id: '', target: 'Spanish', model: 'en-es' }] },
             src: 'English',
             targets: [{ target: 'Spanish', model: 'en-es' }],
             languages: [],
-            targetLanguages: []
+            targetLanguages: [],
+            search: ''
         };
     }
 
@@ -42,6 +45,7 @@ class MainList extends Component {
         this.props.navigation.setParams({ changeMenuVisibility: this.changeMenuVisibility });
         this.props.navigation.setParams({ changeConfirmMenuVisibility: this.changeConfirmMenuVisibility });
         this.props.navigation.setParams({ changeEditGroupVisibility: this.changeEditGroupVisibility });
+        this.props.navigation.setParams({ changeSearchVisibility: this.changeSearchVisibility });
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -49,6 +53,13 @@ class MainList extends Component {
             title: navigation.getParam('group').name,
             headerRight: (
                 <View style={{ flexDirection: 'row' }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.getParam('changeSearchVisibility')();
+                        }}
+                    >
+                        <Icon name="search" size={30} color="white" />
+                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
                             navigation.getParam('changeEditGroupVisibility')(true);
@@ -89,12 +100,12 @@ class MainList extends Component {
 
         let itens = Array.from(this.state.itens);
         itens.push(item);
-        this.setState({ itens });
+        this.setState({ itens, allItems: itens });
     }
 
     async getItens() {
         const itens = await Db.open().getItens(this.props.navigation.getParam('group').id);
-        this.setState({ itens });
+        this.setState({ itens, allItems: itens });
     }
 
     async getConfigs() {
@@ -155,6 +166,14 @@ class MainList extends Component {
             this.setState({ groupName: this.props.navigation.getParam('group').name });
         }
         this.setState({ isEditGroupModalVisible: isVisible });
+    }
+
+    changeSearchVisibility = () => {
+        let isSearchVisible = !this.state.isSearchVisible;
+        if (!isSearchVisible) {
+            this.updateSearch("");
+        }
+        this.setState({ isSearchVisible });
     }
 
     selectLanguage(selectedLanguage) {
@@ -291,6 +310,21 @@ class MainList extends Component {
         }
         this.setState({ isEditGroupModalVisible: false });
     }
+
+    updateSearch = search => {
+
+        let itens = [{}];
+
+        if (!search) {
+            itens = this.state.allItems;
+        } else {
+            itens = this.state.allItems.filter(items => {
+                return items.text.includes(search);
+            });
+        }
+        this.setState({ search, itens });
+
+    };
 
     render() {
         return (
@@ -450,6 +484,17 @@ class MainList extends Component {
                         </Modal>
 
                         {
+                            this.state.isSearchVisible && <SearchBar
+                                placeholder="Search items..."
+                                onChangeText={this.updateSearch}
+                                value={this.state.search}
+                                containerStyle={styles.search}
+                                inputContainerStyle={styles.searchInput}
+                            />
+                        }
+
+
+                        {
                             this.state.itens.length > 0 && this.state.itens.map((item, index) => {
                                 if (item.id) {
                                     return (
@@ -592,6 +637,15 @@ const styles = StyleSheet.create({
     },
     okButton: {
         backgroundColor: 'green',
+    },
+    search: {
+        backgroundColor: 'white',
+        marginLeft: 13,
+        marginRight: 13,
+        borderRadius: 30
+    },
+    searchInput: {
+        backgroundColor: 'white',
     }
 })
 
