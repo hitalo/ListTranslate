@@ -11,7 +11,7 @@ const TranslationsSchema = {
 };
 
 const ItemSchema = {
-    name: 'Itens',
+    name: 'Items',
     primaryKey: 'id',
     properties: {
         id: 'string',
@@ -57,7 +57,7 @@ export class RealmDB {
 
         Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
             realm.write(() => {
-                let newItem = realm.create('Itens', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
+                let newItem = realm.create('Items', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
                 const translations = Object.assign([], item.translations);
                 translations.forEach(translation => {
                     newItem.translations.push(realm.create('Translations', translation, true));
@@ -69,14 +69,14 @@ export class RealmDB {
 
     }
 
-    saveAllItens(itens) {
+    saveAllItems(items) {
 
         Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
             realm.write(() => {
 
-                itens.map(item => {
+                items.map(item => {
                     if (item.text.trim()) {
-                        let newItem = realm.create('Itens', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
+                        let newItem = realm.create('Items', { id: item.id, group_id: item.group_id, text: item.text, translations: [] }, true);
                         const translations = Object.assign([], item.translations);
                         translations.forEach(translation => {
                             newItem.translations.push(realm.create('Translations', translation, true));
@@ -86,23 +86,23 @@ export class RealmDB {
             });
 
             realm.close();
-        }).catch(e => { console.error("save all itens error open ", e); });
+        }).catch(e => { console.error("save all items error open ", e); });
 
     }
 
 
-    getItens(group_id) {
+    getItems(group_id) {
 
         try {
 
             const realm = new Realm({ schema: [ItemSchema, TranslationsSchema] });
-            let itens = realm.objects('Itens').filtered('group_id == $0', group_id.trim());
-            itens = this.convertToArray(itens);
+            let items = realm.objects('Items').filtered('group_id == $0', group_id.trim());
+            items = this.convertToArray(items);
             realm.close();
-            return itens;
+            return items;
 
         } catch (e) {
-            console.error("get itens error ", e);
+            console.error("get items error ", e);
         }
     }
 
@@ -110,7 +110,7 @@ export class RealmDB {
 
         return Realm.open({ schema: [ItemSchema, TranslationsSchema] }).then(realm => {
 
-            const item = realm.objects('Itens').filtered('id == $0', id.trim())[0];
+            const item = realm.objects('Items').filtered('id == $0', id.trim())[0];
 
             if (item) {
                 realm.write(() => { realm.delete(item); }); //TODO delete cascade?
@@ -130,7 +130,7 @@ export class RealmDB {
 
         Realm.open({ schema: [TranslationsSchema, ItemSchema] }).then(realm => {
             realm.write(() => {
-                let item = realm.create('Itens', { id: id }, true);
+                let item = realm.create('Items', { id: id }, true);
                 Object.assign([], item.translations).push(realm.create('Translations', translation, true));
             });
 
@@ -169,10 +169,10 @@ export class RealmDB {
         return Realm.open({ schema: [GroupSchema, ItemSchema, TranslationsSchema] }).then(realm => {
 
             const group = realm.objects('Groups').filtered('id == $0', id.trim())[0];
-            const itens = realm.objects('Itens').filtered('group_id == $0', id.trim());
+            const items = realm.objects('Items').filtered('group_id == $0', id.trim());
 
             if (group) {
-                realm.write(() => { realm.delete(group); realm.delete(itens)}); //TODO delete cascade?
+                realm.write(() => { realm.delete(group); realm.delete(items)}); //TODO delete cascade?
             }
             
 

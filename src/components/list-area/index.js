@@ -14,15 +14,15 @@ import InputModal from '../../modals/input-modal';
 
 class MainList extends Component {
 
-    itens = [{}];
+    items = [{}];
     targetToDelete = undefined;
     allLanguages = {};
 
     constructor(props) {
         super(props);
         this.state = {
-            itens: this.itens,
-            allItems: this.itens,
+            items: this.items,
+            allItems: this.items,
             groupName: this.props.navigation.getParam('group').name,
             isMenuVisible: false,
             isConfirmMenuVisible: false,
@@ -41,7 +41,7 @@ class MainList extends Component {
     componentDidMount() {
         this.allLanguages = Utils.getLanguages();
         this.getConfigs();
-        this.getItens();
+        this.getItems();
         this.props.navigation.setParams({ changeMenuVisibility: this.changeMenuVisibility });
         this.props.navigation.setParams({ changeConfirmMenuVisibility: this.changeConfirmMenuVisibility });
         this.props.navigation.setParams({ changeEditGroupVisibility: this.changeEditGroupVisibility });
@@ -98,14 +98,14 @@ class MainList extends Component {
             item.translations.push({ id: uuid.v4(), text: "" });
         });
 
-        let itens = Array.from(this.state.itens);
-        itens.push(item);
-        this.setState({ itens, allItems: itens });
+        let items = Array.from(this.state.items);
+        items.push(item);
+        this.setState({ items, allItems: items });
     }
 
-    async getItens() {
-        const itens = await Db.open().getItens(this.props.navigation.getParam('group').id);
-        this.setState({ itens, allItems: itens });
+    async getItems() {
+        const items = await Db.open().getItems(this.props.navigation.getParam('group').id);
+        this.setState({ items, allItems: items });
     }
 
     async getConfigs() {
@@ -125,14 +125,14 @@ class MainList extends Component {
     }
 
     updateList = () => {
-        this.getItens();
+        this.getItems();
     }
 
     updateItem = (item) => {
-        let itens = this.state.itens;
-        let itemIndex = itens.findIndex((i => i.id === item.id));
-        itens[itemIndex] = item;
-        this.setState({ itens });
+        let items = this.state.items;
+        let itemIndex = items.findIndex((i => i.id === item.id));
+        items[itemIndex] = item;
+        this.setState({ items });
     }
 
     getItemByModal(model) {
@@ -211,15 +211,15 @@ class MainList extends Component {
         let config = { ...this.state.config }
         config.src = this.state.src;
 
-        let itens = this.state.itens;
-        let saveItens = false;
+        let items = this.state.items;
+        let saveItems = false;
 
         this.state.targets.map((target, index) => {
             if (!config.targets[index]) {
                 config.targets[index] = target;
 
-                saveItens = true;
-                itens.map(item => {
+                saveItems = true;
+                items.map(item => {
                     item.translations = Object.assign([], item.translations);
                     item.translations.push({ id: uuid.v4(), text: "" });
                 });
@@ -229,10 +229,10 @@ class MainList extends Component {
             }
         });
 
-        if (saveItens) { await Db.open().saveAllItens(itens); }
+        if (saveItems) { await Db.open().saveAllItems(items); }
 
         config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
-        this.setState({ config, itens }, () => {
+        this.setState({ config, items }, () => {
             Db.open().saveConfig(config);
             this.changeMenuVisibility(false)
         });
@@ -240,9 +240,9 @@ class MainList extends Component {
 
     deleteItem = async (id) => {
         await Db.open().deleteItem(id);
-        let itens = this.state.itens;
-        itens = itens.filter(i => { return i.id !== id });
-        this.setState({ itens });
+        let items = this.state.items;
+        items = items.filter(i => { return i.id !== id });
+        this.setState({ items });
     }
 
     getLanguages() {
@@ -274,16 +274,16 @@ class MainList extends Component {
             targets.splice(this.targetToDelete, 1);
             config.targets = targets;
 
-            let itens = this.state.itens;
-            itens.map(item => {
+            let items = this.state.items;
+            items.map(item => {
                 item.translations = Object.assign([], item.translations);
                 item.translations.splice(this.targetToDelete, 1);
             });
-            await Db.open().saveAllItens(itens);
+            await Db.open().saveAllItems(items);
             config.group_id = (config.group_id || this.props.navigation.getParam('group').id);
             await Db.open().saveConfig(config);
 
-            this.setState({ targets, config, itens });
+            this.setState({ targets, config, items });
         }
 
         this.changeConfirmRemoveTargetVisibility(false);
@@ -313,16 +313,16 @@ class MainList extends Component {
 
     updateSearch = search => {
 
-        let itens = [{}];
+        let items = [{}];
 
         if (!search) {
-            itens = this.state.allItems;
+            items = this.state.allItems;
         } else {
-            itens = this.state.allItems.filter(items => {
+            items = this.state.allItems.filter(items => {
                 return items.text.includes(search);
             });
         }
-        this.setState({ search, itens });
+        this.setState({ search, items });
 
     };
 
@@ -495,7 +495,7 @@ class MainList extends Component {
 
 
                         {
-                            this.state.itens.length > 0 && this.state.itens.map((item, index) => {
+                            this.state.items.length > 0 && this.state.items.map((item, index) => {
                                 if (item.id) {
                                     return (
                                         <Card key={item.id} containerStyle={{ padding: 0 }}>
