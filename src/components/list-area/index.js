@@ -99,8 +99,10 @@ class MainList extends Component {
         });
 
         let items = Array.from(this.state.items);
+        let allItems = Array.from(this.state.allItems);
         items.push(item);
-        this.setState({ items, allItems: items });
+        allItems.push(item);
+        this.setState({ items, allItems });
     }
 
     async getItems() {
@@ -132,7 +134,12 @@ class MainList extends Component {
         let items = this.state.items;
         let itemIndex = items.findIndex((i => i.id === item.id));
         items[itemIndex] = item;
-        this.setState({ items });
+
+        let allItems = this.state.allItems;
+        itemIndex = allItems.findIndex((i => i.id === item.id));
+        allItems[itemIndex] = item;
+
+        this.setState({ items, allItems });
     }
 
     getItemByModal(model) {
@@ -244,7 +251,11 @@ class MainList extends Component {
         await Db.open().deleteItem(id);
         let items = this.state.items;
         items = items.filter(i => { return i.id !== id });
-        this.setState({ items });
+
+        let allItems = this.state.allItems;
+        allItems = allItems.filter(i => { return i.id !== id });
+
+        this.setState({ items, allItems });
     }
 
     getLanguages() {
@@ -320,13 +331,33 @@ class MainList extends Component {
         if (!search) {
             items = this.state.allItems;
         } else {
-            items = this.state.allItems.filter(items => {
-                return items.text.includes(search);
+            items = this.state.allItems.filter(allItems => {
+                return allItems.text.includes(search);
             });
+            Array.prototype.push.apply(items, this.searchInTranslations(search)); //merge the arrays
         }
         this.setState({ search, items });
 
     };
+
+    searchInTranslations(search) {
+        let items = [{}];
+
+        if (search) {
+            let itemsToTest = this.state.allItems.filter(items => {
+                return !items.text.includes(search); //already tested when includes
+            });
+
+            itemsToTest.forEach(item => {
+                let matchingTranslations = Object.assign([], item.translations).filter(translation => translation.text.includes(search));
+                if (matchingTranslations.length > 0) {
+                    items.push(item);
+                }
+            });
+        }
+
+        return items;
+    }
 
     render() {
         return (
